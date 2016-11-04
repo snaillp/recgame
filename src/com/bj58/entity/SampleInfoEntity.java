@@ -3,7 +3,21 @@ package com.bj58.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class SampleInfoEntity {
+	
+	public String toJson()
+	{
+		return gson.toJson(this);
+	}
+	
+	public static SampleInfoEntity fromJson(String str)
+	{
+		return gson.fromJson(str, SampleInfoEntity.class);
+	}
+	public static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 	public String lable;
 	//每行特征
 	public String cookie;
