@@ -16,6 +16,10 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import com.bj58.entity.PositionStructEntity;
 
 public class PositionInfoStructure {
+	/*
+	 * 输入为职位的imc
+	 * 输出为职位的属性，将作为特征
+	 */
 	public static class PositionInfoStructureMapper extends Mapper<Object, Text, Text, Text> {
 
 		public PositionStructEntity parseEntity(String[] lineArray)

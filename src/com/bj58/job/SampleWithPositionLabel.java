@@ -14,7 +14,7 @@ import com.bj58.entity.ClickInfoEntity;
 import com.bj58.entity.PositionStructEntity;
 import com.bj58.entity.SampleInfoEntity;
 
-public class SampleLabel {
+public class SampleWithPositionLabel {
 	/*
 	 * 输入：1.info的imc信息 2.info的点击状态
 	 */
@@ -71,6 +71,7 @@ public class SampleLabel {
 			sie.fresh = pse.fresh; //是否接受应届生
 			sie.highlights = pse.highlights; //职位亮点的个数
 			sie.additional = pse.additional; //额外要求
+			sie.histCtr = pse.histCtr;
 		}
 	}
 }

@@ -29,6 +29,14 @@ public class PositionStructEntity {
 		this.infoid = infoid;
 	}
 
+	public int getHistCtr() {
+		return histCtr;
+	}
+
+	public void setHistCtr(int histCtr) {
+		this.histCtr = histCtr;
+	}
+
 	public String getCate() {
 		return cate;
 	}
