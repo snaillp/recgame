@@ -14,8 +14,10 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 import com.bj58.entity.ClickInfoEntity;
+import com.bj58.entity.PositionStructEntity;
 import com.bj58.entity.UserIndivEntity;
 
 public class UserClickInfo {
@@ -133,42 +135,65 @@ public class UserClickInfo {
 		}
 	}
 	
-	//2.cookie 个性化->用于训练数据和测试数据的生成
+	//2.cookie 个性化: 只获取了user访问的local，category->用于训练数据和测试数据的生成，key为infoid
 	public static class UserIndivInfoMapper extends Mapper<Object, Text, Text, Text> {
 		@Override
 		protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-			String line = value.toString();
-			String[] lineArray = line.trim().split("\t");
-			ClickInfoEntity cie = ClickInfoEntity.fromJson(lineArray[1]);
-			context.write(new Text(cie.getCookie()), new Text(lineArray[1]));
+			String inputfile = ((FileSplit)context.getInputSplit()).getPath().toString();
+			String line = value.toString().trim();
+			String[] lineArray = line.split("\t");
+			if(inputfile.contains("/")){
+				//帖子数据
+				context.write(new Text(lineArray[0]+"\001A"), new Text(lineArray[1]));
+			}else if(inputfile.contains("")){
+				//点击数据
+//				ClickInfoEntity cie = ClickInfoEntity.fromJson(lineArray[1]);
+				context.write(new Text(lineArray[0]+"\001B"), new Text(lineArray[1]));
+			}
 		}
 	}
 	public static class UserIndivInfoReducer extends Reducer<Text, Text, Text, Text> {
 		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-			List<String> cateList = new ArrayList();
-			List<String> localList = new ArrayList();
+//			List<String> cateList = new ArrayList(8);
+//			List<String> localList = new ArrayList(8);
+//			List<Integer> salaryList = new ArrayList(16);
+//			List<Integer> educationList = new ArrayList(16);
+//			List<Integer> experienceList = new ArrayList(16);
+//			List<Integer> tradeList = new ArrayList(64); //行业
+//			List<Integer> enttypeList = new ArrayList(16); //公司性质，私营。。。
+//			List<Integer> fuli = new ArrayList(16); //福利
+//			for(Text val: values){
+//				String vl = val.toString();
+//				ClickInfoEntity cie = ClickInfoEntity.fromJson(vl);
+//				String local = cie.getLocal();
+//				if(!localList.contains(local)){
+//					localList.add(local);
+//				}
+//				String cate = cie.getCate();
+//				//TODO:判断新加入的是否list中的fullpath中的
+//				if(!cateList.contains(cate)){
+//					cateList.add(cate);
+//				}
+//			}
+//			UserIndivEntity uie = new UserIndivEntity();
+//			uie.setCookie(key.toString());
+//			if(!localList.isEmpty()){
+//				uie.setLocalList(localList);
+//			}
+//			if(!cateList.isEmpty()){
+//				uie.setCateList(cateList);
+//			}
+//			context.write(key, new Text(uie.toJson()));
 			for(Text val: values){
-				String vl = val.toString();
-				ClickInfoEntity cie = ClickInfoEntity.fromJson(vl);
-				String local = cie.getLocal();
-				if(!localList.contains(local)){
-					localList.add(local);
-				}
-				String cate = cie.getCate();
-				if(!cateList.contains(cate)){
-					cateList.add(cate);
-				}
+				
 			}
-			UserIndivEntity uie = new UserIndivEntity();
-			uie.setCookie(key.toString());
-			if(!localList.isEmpty()){
-				uie.setLocalList(localList);
-			}
-			if(!cateList.isEmpty()){
-				uie.setCateList(cateList);
-			}
-			context.write(key, new Text(uie.toJson()));
 		}
 	}
-
+	//3.聚合user个性化数据
+	public static class UserIndivPositionMapper extends Mapper<Object, Text, Text, Text> {
+		@Override
+		protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+			
+		}
+	}
 }

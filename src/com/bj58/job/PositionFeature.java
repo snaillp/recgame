@@ -39,9 +39,6 @@ public class PositionFeature {
 				//infoid
 				flag = "A";
 			}else if(inputfile.contains("")){
-				//ctr
-				flag = "B";
-			}else if(inputfile.contains("")){
 				//click
 				flag = "C";
 			}

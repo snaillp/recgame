@@ -17,6 +17,183 @@ public class SampleInfoEntity {
 	{
 		return gson.fromJson(str, SampleInfoEntity.class);
 	}
+	
+	public String getLable() {
+		return lable;
+	}
+
+	public void setLable(String lable) {
+		this.lable = lable;
+	}
+
+	public String getCookie() {
+		return cookie;
+	}
+
+	public void setCookie(String cookie) {
+		this.cookie = cookie;
+	}
+
+	public String getInfoid() {
+		return infoid;
+	}
+
+	public void setInfoid(String infoid) {
+		this.infoid = infoid;
+	}
+
+	public List<String> getLocal() {
+		return local;
+	}
+
+	public void setLocal(List<String> local) {
+		this.local = local;
+	}
+
+	public String getCate() {
+		return cate;
+	}
+
+	public void setCate(String cate) {
+		this.cate = cate;
+	}
+
+	public int getHistCtr() {
+		return histCtr;
+	}
+
+	public void setHistCtr(int histCtr) {
+		this.histCtr = histCtr;
+	}
+
+	public long getTimeInteval() {
+		return timeInteval;
+	}
+
+	public void setTimeInteval(long timeInteval) {
+		this.timeInteval = timeInteval;
+	}
+
+	public int getSource() {
+		return source;
+	}
+
+	public void setSource(int source) {
+		this.source = source;
+	}
+
+	public int getSalary() {
+		return salary;
+	}
+
+	public void setSalary(int salary) {
+		this.salary = salary;
+	}
+
+	public int getEducation() {
+		return education;
+	}
+
+	public void setEducation(int education) {
+		this.education = education;
+	}
+
+	public int getExperience() {
+		return experience;
+	}
+
+	public void setExperience(int experience) {
+		this.experience = experience;
+	}
+
+	public int getEnttype() {
+		return enttype;
+	}
+
+	public void setEnttype(int enttype) {
+		this.enttype = enttype;
+	}
+
+	public List<Integer> getFuli() {
+		return fuli;
+	}
+
+	public void setFuli(List<Integer> fuli) {
+		this.fuli = fuli;
+	}
+
+	public int getFresh() {
+		return fresh;
+	}
+
+	public void setFresh(int fresh) {
+		this.fresh = fresh;
+	}
+
+	public int getHighlights() {
+		return highlights;
+	}
+
+	public void setHighlights(int highlights) {
+		this.highlights = highlights;
+	}
+
+	public int getAdditional() {
+		return additional;
+	}
+
+	public void setAdditional(int additional) {
+		this.additional = additional;
+	}
+
+	public double getLocalmatch() {
+		return localmatch;
+	}
+
+	public void setLocalmatch(double localmatch) {
+		this.localmatch = localmatch;
+	}
+
+	public double getCatematch() {
+		return catematch;
+	}
+
+	public void setCatematch(double catematch) {
+		this.catematch = catematch;
+	}
+
+	public double getSalarymatch() {
+		return salarymatch;
+	}
+
+	public void setSalarymatch(double salarymatch) {
+		this.salarymatch = salarymatch;
+	}
+
+	public double getEducationmatch() {
+		return educationmatch;
+	}
+
+	public void setEducationmatch(double educationmatch) {
+		this.educationmatch = educationmatch;
+	}
+
+	public double getExperiencematch() {
+		return experiencematch;
+	}
+
+	public void setExperiencematch(double experiencematch) {
+		this.experiencematch = experiencematch;
+	}
+
+	public double getEnttypematch() {
+		return enttypematch;
+	}
+
+	public void setEnttypematch(double enttypematch) {
+		this.enttypematch = enttypematch;
+	}
+
 	public static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 	public String lable;
 	//每行特征
@@ -36,11 +213,11 @@ public class SampleInfoEntity {
 	public int highlights; //职位亮点的个数
 	public int additional; //额外要求
 	//匹配度
-	public String localmatch;
-	public String catematch;
-	public int salarymatch;
-	public int educationmatch;
-	public int experiencematch;
-	public int enttypematch; //公司性质，私营。。。
+	public double localmatch;
+	public double catematch;
+	public double salarymatch;
+	public double educationmatch;
+	public double experiencematch;
+	public double enttypematch; //公司性质，私营。。。
 	
 }

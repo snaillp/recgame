@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.io.Text;
@@ -128,11 +130,11 @@ public class PositionInfoStructure {
 			if(inputfile.contains("/Ctr")){
 				//历史ctr
 				String[] lineArray = line.split("\t");
-				context.write(new Text(lineArray[0]), new Text("A\001"+lineArray[1]));
+				context.write(new Text(lineArray[0]+"\001A"), new Text(lineArray[1]));
 			}else{
 				String[] lineArray = line.split("\001");
 				PositionStructEntity pse = parseEntity(lineArray);
-				context.write(new Text(pse.getInfoid()), new Text("B\001"+pse.toJson()));
+				context.write(new Text(pse.getInfoid()+"\001B"), new Text(pse.toJson()));
 			}
 		}
 	}
@@ -140,25 +142,23 @@ public class PositionInfoStructure {
 	public static class PositionInfoStructureReducer extends Reducer<Text, Text, Text, Text> {
 		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 			int histCtr = -1;
+			List<String> positionList = new ArrayList();
 			for(Text val: values){
 				String vl = val.toString();
 				if(vl.startsWith("A")){
 					double histCtrDouble = Double.parseDouble(vl.substring(2));
 					histCtr = (int)(histCtrDouble * 1000000);
-					break;
+				}else if(vl.startsWith("B")){
+					positionList.add(vl.substring(2));
 				}
 			}
 			if(histCtr < 0){
 				histCtr = 11327;
 			}
-			for(Text val: values){
-				String vl = val.toString();
-				if(vl.startsWith("B")){
-					vl = vl.substring(2);
-					PositionStructEntity pse = PositionStructEntity.fromJson(vl);
-					pse.histCtr = histCtr;
-					context.write(key, new Text(pse.toJson()));
-				}
+			for(String val: positionList){
+				PositionStructEntity pse = PositionStructEntity.fromJson(val);
+				pse.histCtr = histCtr;
+				context.write(key, new Text(pse.toJson()));
 			}
 		}
 	}

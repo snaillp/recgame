@@ -1,5 +1,6 @@
 package com.bj58.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -35,10 +36,15 @@ public class UserIndivEntity {
 		this.cateList = cateList;
 	}
 	
+	
 	public static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 	String cookie;
 	List<String> localList;
 	List<String> cateList;
-	
-	
+	List<Integer> salaryList;
+	List<Integer> educationList;
+	List<Integer> experienceList;
+	List<Integer> tradeList; //行业
+	List<Integer> enttypeList; //公司性质，私营。。。
+	List<Integer> fuli; //福利	
 }

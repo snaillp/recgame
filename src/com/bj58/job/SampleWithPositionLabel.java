@@ -27,37 +27,35 @@ public class SampleWithPositionLabel {
 			if(inputfile.contains("tracklog/")){
 				//imc
 //				PositionStructEntity pse = PositionStructEntity.fromJson(lineArray[1]);
-				context.write(new Text(lineArray[0]), new Text("A\001"+lineArray[1]));
+				context.write(new Text(lineArray[0]+"\001A"), new Text(lineArray[1]));
 			}else if(inputfile.contains("")){
 //				ClickInfoEntity cie = ClickInfoEntity.fromJson(lineArray[1]);
-				context.write(new Text(lineArray[0]), new Text("B\001"+lineArray[1]));
+				context.write(new Text(lineArray[0]+"\001B"), new Text(lineArray[1]));
 			}
 		}
 	}
 	public static class SampleLabelReducer extends Reducer<Text, Text, Text, Text> {
 		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 			PositionStructEntity pse = null;
+			List<String> sampleStrList = new ArrayList();
 			for(Text val: values){
 				String vl = val.toString();
 				if(vl.startsWith("A")){
 					pse = PositionStructEntity.fromJson(vl.substring(2));
-					break;
+				}else if(vl.startsWith("B")){
+					sampleStrList.add(vl.substring(2));
 				}
 			}
 			if(pse != null){
-				for(Text val: values){
-					String vl = val.toString();
-					if(vl.startsWith("B")){
-						vl = vl.substring(2);
-						ClickInfoEntity cie = ClickInfoEntity.fromJson(vl);
-						SampleInfoEntity sie = new SampleInfoEntity();
-						sie.timeInteval = cie.getVisittime() - pse.getPostdate();
-						sie.lable = cie.getLabel();
-						sie.cookie = cie.getCookie();
-						sie.infoid = cie.getInfoid();
-						fromePosition2Sample(pse, sie);
-						context.write(new Text(sie.cookie), new Text(sie.toJson()));
-					}
+				for(String vl: sampleStrList){
+					ClickInfoEntity cie = ClickInfoEntity.fromJson(vl);
+					SampleInfoEntity sie = new SampleInfoEntity();
+					sie.timeInteval = cie.getVisittime() - pse.getPostdate();
+					sie.lable = cie.getLabel();
+					sie.cookie = cie.getCookie();
+					sie.infoid = cie.getInfoid();
+					fromePosition2Sample(pse, sie);
+					context.write(new Text(sie.cookie), new Text(sie.toJson()));
 				}
 			}
 		}
