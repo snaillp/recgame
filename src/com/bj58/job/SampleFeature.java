@@ -86,24 +86,22 @@ public class SampleFeature {
 			feaIndex = histCtrFea.getFeaIndex(beginIndex, histCtr);
 			sfe.addFea(feaIndex);
 			beginIndex += histCtrFea.getDimension();
+			//source
+			int source = sie.getSource();
+			feaIndex = sourceFea.getFeaIndex(beginIndex, source);
+			sfe.addFea(feaIndex);
+			beginIndex += sourceFea.getDimention();
+			//salary
+			int salary = sie.getSalary();
+			feaIndex = salaryFea.getFeaIndex(beginIndex, salary);
+			sfe.addFea(feaIndex);
+			beginIndex += salaryFea.getDimension();
 		}
 	}
 	
 	public static class PositionFeatureReducer extends Reducer<Text, Text, Text, Text> {
 		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-			for(Text val: values){
-				String vl = val.toString().trim();
-				String vlInfo = vl.substring(2);
-				int ctr = 0;
-				PositionStructEntity pse = null;
-				if(vl.startsWith("A")){
-					pse = PositionStructEntity.fromJson(vlInfo);
-				}else if(vl.startsWith("B")){
-					ctr = Integer.parseInt(vlInfo);
-				}else if(vl.startsWith("C")){
-					
-				}
-			}
+			
 		}
 	}
 }
