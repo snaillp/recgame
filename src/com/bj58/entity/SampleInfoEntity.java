@@ -1,7 +1,9 @@
 package com.bj58.entity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -42,11 +44,11 @@ public class SampleInfoEntity {
 		this.infoid = infoid;
 	}
 
-	public List<String> getLocal() {
+	public Set<String> getLocal() {
 		return local;
 	}
 
-	public void setLocal(List<String> local) {
+	public void setLocal(Set<String> local) {
 		this.local = local;
 	}
 
@@ -114,12 +116,12 @@ public class SampleInfoEntity {
 		this.enttype = enttype;
 	}
 
-	public List<Integer> getFuli() {
-		return fuli;
+	public Set<Integer> getFuli() {
+		return fuliSet;
 	}
 
-	public void setFuli(List<Integer> fuli) {
-		this.fuli = fuli;
+	public void setFuli(Set<Integer> fuliSet) {
+		this.fuliSet = fuliSet;
 	}
 
 	public int getFresh() {
@@ -194,12 +196,44 @@ public class SampleInfoEntity {
 		this.enttypematch = enttypematch;
 	}
 
+	public Set<Integer> getFuliSet() {
+		return fuliSet;
+	}
+
+	public void setFuliSet(Set<Integer> fuliSet) {
+		this.fuliSet = fuliSet;
+	}
+
+	public double getFuliMatch() {
+		return fuliMatch;
+	}
+
+	public void setFuliMatch(double fuliMatch) {
+		this.fuliMatch = fuliMatch;
+	}
+
+	public int getTrade() {
+		return trade;
+	}
+
+	public void setTrade(int trade) {
+		this.trade = trade;
+	}
+
+	public double getTradematch() {
+		return tradematch;
+	}
+
+	public void setTradematch(double tradematch) {
+		this.tradematch = tradematch;
+	}
+
 	public static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 	public String lable;
 	//每行特征
 	public String cookie;
 	public String infoid;
-	public List<String> local;
+	public Set<String> local = new HashSet();
 	public String cate;
 	public int histCtr;
 	public long timeInteval; //展示时间-postdate
@@ -208,7 +242,8 @@ public class SampleInfoEntity {
 	public int education;
 	public int experience;
 	public int enttype; //公司性质，私营。。。
-	public List<Integer> fuli = new ArrayList(16); //福利
+	public int trade; //行业
+	public Set<Integer> fuliSet = new HashSet(16); //福利
 	public int fresh; //是否接受应届生
 	public int highlights; //职位亮点的个数
 	public int additional; //额外要求
@@ -219,5 +254,6 @@ public class SampleInfoEntity {
 	public double educationmatch;
 	public double experiencematch;
 	public double enttypematch; //公司性质，私营。。。
-	
+	public double tradematch; //行业
+	public double fuliMatch;
 }

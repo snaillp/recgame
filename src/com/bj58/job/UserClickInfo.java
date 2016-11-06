@@ -143,57 +143,62 @@ public class UserClickInfo {
 			String line = value.toString().trim();
 			String[] lineArray = line.split("\t");
 			if(inputfile.contains("/")){
-				//帖子数据
-				context.write(new Text(lineArray[0]+"\001A"), new Text(lineArray[1]));
+				//帖子数据， key: infoID，value: info
+				context.write(new Text(lineArray[0]+"\001A"), new Text("A\001"+lineArray[1]));
 			}else if(inputfile.contains("")){
-				//点击数据
+				//点击数据，key: infoid, value：点击数据
 //				ClickInfoEntity cie = ClickInfoEntity.fromJson(lineArray[1]);
-				context.write(new Text(lineArray[0]+"\001B"), new Text(lineArray[1]));
+				context.write(new Text(lineArray[0]+"\001B"), new Text("B\001"+lineArray[1]));
 			}
 		}
 	}
 	public static class UserIndivInfoReducer extends Reducer<Text, Text, Text, Text> {
 		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-//			List<String> cateList = new ArrayList(8);
-//			List<String> localList = new ArrayList(8);
-//			List<Integer> salaryList = new ArrayList(16);
-//			List<Integer> educationList = new ArrayList(16);
-//			List<Integer> experienceList = new ArrayList(16);
-//			List<Integer> tradeList = new ArrayList(64); //行业
-//			List<Integer> enttypeList = new ArrayList(16); //公司性质，私营。。。
-//			List<Integer> fuli = new ArrayList(16); //福利
-//			for(Text val: values){
-//				String vl = val.toString();
-//				ClickInfoEntity cie = ClickInfoEntity.fromJson(vl);
-//				String local = cie.getLocal();
-//				if(!localList.contains(local)){
-//					localList.add(local);
-//				}
-//				String cate = cie.getCate();
-//				//TODO:判断新加入的是否list中的fullpath中的
-//				if(!cateList.contains(cate)){
-//					cateList.add(cate);
-//				}
-//			}
-//			UserIndivEntity uie = new UserIndivEntity();
-//			uie.setCookie(key.toString());
-//			if(!localList.isEmpty()){
-//				uie.setLocalList(localList);
-//			}
-//			if(!cateList.isEmpty()){
-//				uie.setCateList(cateList);
-//			}
-//			context.write(key, new Text(uie.toJson()));
+			PositionStructEntity pse = null;
 			for(Text val: values){
-				
+				String vl = val.toString();
+				if(vl.startsWith("A")){
+					//imc
+					pse = PositionStructEntity.fromJson(vl.substring(2));
+				}else if(vl.startsWith("B")){
+					ClickInfoEntity cie = ClickInfoEntity.fromJson(vl.substring(2));
+					UserIndivEntity uie = new UserIndivEntity(true);
+					if(null != pse){
+						//from show
+						uie.setCookie(cie.getCookie());
+						uie.addCate(cie.getCate());
+						uie.addLocal(cie.getLocal());
+						//from doc
+						uie.addSalary(pse.getSalary());
+						uie.addEducation(pse.getEducation());
+						uie.addExperience(pse.getExperience());
+						uie.addTrade(pse.getTrade());
+						uie.addEnttype(pse.getEnttype());
+						uie.addFuli(pse.getFuli());
+						context.write(new Text(uie.getCookie()), new Text(uie.toJson()));
+					}
+				}
 			}
 		}
 	}
-	//3.聚合user个性化数据
-	public static class UserIndivPositionMapper extends Mapper<Object, Text, Text, Text> {
+	//3.聚合user个性化数据, input:cookie\tcookie_doc
+	public static class UserIndivMergerMapper extends Mapper<Object, Text, Text, Text> {
 		@Override
 		protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-			
+			String line = value.toString().trim();
+			String[] lineArray = line.split("\t");
+			context.write(new Text(lineArray[0]), new Text(lineArray[1]));
+		}
+	}
+	public static class UserIndivMergerReducer extends Reducer<Text, Text, Text, Text> {
+		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+			UserIndivEntity uie = new UserIndivEntity(true);
+			for(Text val: values){
+				String vl = val.toString();
+				UserIndivEntity uieVl = UserIndivEntity.fromJson(vl);
+				uie.merge(uieVl);
+			}
+			context.write(key, new Text(uie.toJson()));
 		}
 	}
 }

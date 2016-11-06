@@ -1,7 +1,9 @@
 package com.bj58.entity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -45,11 +47,11 @@ public class PositionStructEntity {
 		this.cate = cate;
 	}
 
-	public List<String> getLocal() {
+	public Set<String> getLocal() {
 		return local;
 	}
 
-	public void setLocal(List<String> local) {
+	public void setLocal(Set<String> local) {
 		this.local = local;
 	}
 
@@ -109,12 +111,12 @@ public class PositionStructEntity {
 		this.enttype = enttype;
 	}
 
-	public List<Integer> getFuli() {
-		return fuli;
+	public Set<Integer> getFuli() {
+		return fuliSet;
 	}
 
-	public void setFuli(List<Integer> fuli) {
-		this.fuli = fuli;
+	public void setFuli(Set<Integer> fuliSet) {
+		this.fuliSet = fuliSet;
 	}
 
 	public int getFresh() {
@@ -145,7 +147,7 @@ public class PositionStructEntity {
 	public String infoid;
 	public int histCtr;
 	public String cate;
-	public List<String> local = new ArrayList(16);
+	public Set<String> local = new HashSet(16);
 	public long postdate;
 	public int source;
 	public int salary;
@@ -153,7 +155,7 @@ public class PositionStructEntity {
 	public int experience;
 	public int trade; //行业
 	public int enttype; //公司性质，私营。。。
-	public List<Integer> fuli = new ArrayList(16); //福利
+	public Set<Integer> fuliSet = new HashSet(16); //福利
 	public int fresh; //是否接受应届生
 	public int highlights; //职位亮点的个数
 	public int additional; //额外要求

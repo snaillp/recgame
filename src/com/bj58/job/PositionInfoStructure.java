@@ -102,7 +102,7 @@ public class PositionInfoStructure {
 				if(fl.matches("\\d+")){
 					int fli = Integer.parseInt(fl);
 					if(fli>0 && fli<=10){
-						pse.fuli.add(fli);
+						pse.fuliSet.add(fli);
 					}
 				}
 			}
@@ -130,35 +130,33 @@ public class PositionInfoStructure {
 			if(inputfile.contains("/Ctr")){
 				//历史ctr
 				String[] lineArray = line.split("\t");
-				context.write(new Text(lineArray[0]+"\001A"), new Text(lineArray[1]));
+				context.write(new Text(lineArray[0]+"\001A"), new Text("A\001"+lineArray[1]));
 			}else{
 				String[] lineArray = line.split("\001");
 				PositionStructEntity pse = parseEntity(lineArray);
-				context.write(new Text(pse.getInfoid()+"\001B"), new Text(pse.toJson()));
+				context.write(new Text(pse.getInfoid()+"\001B"), new Text("B\001"+pse.toJson()));
 			}
 		}
 	}
 	
 	public static class PositionInfoStructureReducer extends Reducer<Text, Text, Text, Text> {
 		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+			String keyStr = key.toString();
+			String realKey = keyStr.substring(0, keyStr.length()-2);
 			int histCtr = -1;
-			List<String> positionList = new ArrayList();
 			for(Text val: values){
 				String vl = val.toString();
 				if(vl.startsWith("A")){
 					double histCtrDouble = Double.parseDouble(vl.substring(2));
-					histCtr = (int)(histCtrDouble * 1000000);
+					histCtr = (int)(histCtrDouble * 100000);
 				}else if(vl.startsWith("B")){
-					positionList.add(vl.substring(2));
+					if(histCtr < 0){
+						histCtr = 1132;
+					}
+					PositionStructEntity pse = PositionStructEntity.fromJson(vl.substring(2));
+					pse.histCtr = histCtr;
+					context.write(new Text(realKey), new Text(pse.toJson()));
 				}
-			}
-			if(histCtr < 0){
-				histCtr = 11327;
-			}
-			for(String val: positionList){
-				PositionStructEntity pse = PositionStructEntity.fromJson(val);
-				pse.histCtr = histCtr;
-				context.write(key, new Text(pse.toJson()));
 			}
 		}
 	}

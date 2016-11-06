@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -88,23 +89,47 @@ public class SampleWithUserIndiv {
 		}
 		private void userIndivMatch(UserIndivEntity uie, SampleInfoEntity sie){
 			//local match
-			List<String> userLocalList = uie.getLocalList();
-			List<String> sampleLocalList = sie.getLocal();
+			Set<String> userLocalSet = uie.getLocalSet();
+			Set<String> sampleLocalSet = sie.getLocal();
 			double localmatch = 0.0;
-			for(String ulocal: userLocalList){
-				for(String slocal: sampleLocalList){
+			for(String ulocal: userLocalSet){
+				for(String slocal: sampleLocalSet){
 					localmatch += localOcateMatchDegree(ulocal, slocal, local2FullpathMap);
 				}
 			}
 			sie.setLocalmatch(localmatch);
 			//cate match
-			List<String> userCateList = uie.getCateList();
+			Set<String> userCateList = uie.getCateSet();
 			String sampleCate = sie.getCate();
 			double catematch = 0.0;
 			for(String ucate: userCateList){
 				catematch += localOcateMatchDegree(ucate, sampleCate, cate2FullpathMap);
 			}
 			sie.setCatematch(catematch);
+			//salary match
+			Set<Integer> userSalarySet = uie.getSalarySet();
+			int sSalary = sie.getSalary();
+			sie.setSalarymatch(featureMatchDegree(userSalarySet, sSalary, 1));
+			//education
+			Set<Integer> userEducationSet = uie.getEducationSet();
+			int sEdu = sie.getEducation();
+			sie.setEducationmatch(featureMatchDegree(userEducationSet, sEdu, -1));
+			//experience
+			Set<Integer> userExpSet = uie.getExperienceSet();
+			int sExp = sie.getExperience();
+			sie.setExperiencematch(featureMatchDegree(userExpSet, sExp, -1));
+			//enttype
+			Set<Integer> userEntSet = uie.getEnttypeSet();
+			int sEnt = sie.getEnttype();
+			sie.setEnttypematch(exactMatchDegree(userEntSet, sEnt));
+			//trade
+			Set<Integer> userTradeSet = uie.getTradeSet();
+			int sTrade = sie.getTrade();
+			sie.setTradematch(exactMatchDegree(userTradeSet, sTrade));
+			//fuli
+			Set<Integer> userFuliSet = uie.getFuliSet();
+			Set<Integer> sFuliSet = sie.getFuli();
+			sie.setFuliMatch(exactMatchDegree(userFuliSet, sFuliSet));
 		}
 		private double localOcateMatchDegree(String ulocal, String slocal, Map<String, String> id2FullpathMap)
 		{
@@ -134,6 +159,44 @@ public class SampleWithUserIndiv {
 					}
 				}else{
 					matchDegree = matchDepth;
+				}
+			}
+			return matchDegree;
+		}
+		public double featureMatchDegree(Set<Integer> uset, int svalue, int shigh){
+			int max = -1;
+			double matchDegree = 0.0;
+			for(int m: uset){
+				if(m>max){
+					max = m;
+				}
+			}
+			if(uset.contains(svalue)){
+				//全完匹配
+				matchDegree = 1;
+			}else if(shigh==1 &&svalue>max){
+				//例如薪水，doc提供的薪水比用户历史的高，也可以，但不是完全匹配，-0.5
+				matchDegree = 0.5;
+			}else if(shigh==-1 && svalue<max){
+				//例如学历，doc需要的学历低于用户学历，但不是完全匹配，-0.5
+				matchDegree = 0.5;
+			}
+			return matchDegree;
+		}
+		public double exactMatchDegree(Set<Integer> uset, int svalue)
+		{
+			double matchDegree = 0.0;
+			if(uset.contains(svalue)){
+				matchDegree = 1;
+			}
+			return matchDegree;
+		}
+		public double exactMatchDegree(Set<Integer> uset, Set<Integer> sset)
+		{
+			double matchDegree = 0.0;
+			for(int svalue: sset){
+				if(uset.contains(svalue)){
+					matchDegree += 1;
 				}
 			}
 			return matchDegree;

@@ -66,11 +66,12 @@ public class SampleWithPositionLabel {
 			sie.education = pse.education;
 			sie.experience = pse.experience;
 			sie.enttype = pse.enttype; //公司性质，私营。。。
-			sie.fuli = pse.fuli; //福利
+			sie.fuliSet = pse.fuliSet; //福利
 			sie.fresh = pse.fresh; //是否接受应届生
 			sie.highlights = pse.highlights; //职位亮点的个数
 			sie.additional = pse.additional; //额外要求
 			sie.histCtr = pse.histCtr;
+			sie.trade = pse.trade;
 		}
 	}
 }
