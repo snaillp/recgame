@@ -30,7 +30,7 @@ public class SampleFeature {
 	 * 10.福利：1-10，10维
 	 * 11.是否应届生：0,1，2维
 	 * 12.亮点个数：
-	 * 13.额外要求：1-4，4维
+	 * 13.额外要求：0-4，4维
 	 * 14.localmatch:0-4, double, 0.5 interval, 9维
 	 * 15.catematch: 0-4, double, 0.5 interval, 9维
 	 * 16.salarymatch: 0-1, double, 0.5 interval, 3维
@@ -44,8 +44,10 @@ public class SampleFeature {
 	 * 3.enumI min,max,interval dim
 	 */
 	public static class PositionFeatureMapper extends Mapper<Object, Text, Text, Text> {
+		//TODO:统计值范围
 		private ContFeature timestampFea = new ContFeature("timestamp", 0, 10000, 10000);
 		private ContFeature histCtrFea = new ContFeature("histCtr", 0, 10000, 10001);
+		//TODO:统计值范围
 		private EnumAllFeature sourceFea = new EnumAllFeature("source", new ArrayList<Integer>(){{add(0); add(1);add(2);}});
 		private EnumIntervalFeature salaryFea = new EnumIntervalFeature("salary", 0, 10);
 		private EnumIntervalFeature eduFea = new EnumIntervalFeature("education", 0, 8);
@@ -56,6 +58,14 @@ public class SampleFeature {
 		private EnumAllFeature freshFea = new EnumAllFeature("fresh", new ArrayList<Integer>(){{add(0); add(1);}});
 		//TODO:统计值范围
 		private ContFeature highlightFea = new ContFeature("highlight", 0, 10, 11);
+		private EnumIntervalFeature additionFea = new EnumIntervalFeature("additional", 0, 4);
+		private ContFeature localmatchFea = new ContFeature("localmatch", 0, 4, 0.5);
+		private ContFeature catematchFea = new ContFeature("catematch", 0, 4, 0.5);
+		private ContFeature salarymatchFea = new ContFeature("salarymatch", 0, 1, 0.5);
+		private ContFeature edumatchFea = new ContFeature("educationmatch", 0, 1, 0.5);
+		private ContFeature expmatchFea = new ContFeature("experiencematch", 0, 1, 0.5);
+		private EnumAllFeature entmatchFea = new EnumAllFeature("enttypematch", new ArrayList<Integer>(){{add(0); add(1);}});
+		private ContFeature fulimatchFea = new ContFeature("filimatch", 0, 10, 1);
 		@Override
 		protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 			String inputfile = ((FileSplit)context.getInputSplit()).getPath().toString();
@@ -63,7 +73,19 @@ public class SampleFeature {
 			String[] lineArray = line.trim().split("\t");
 			SampleInfoEntity sie = SampleInfoEntity.fromJson(lineArray[1]);
 			SampleLrFeatureEntity sfe = new SampleLrFeatureEntity();
+			//公共变量
+			int beginIndex = 0;
+			int feaIndex = 0;
 			//时间戳,cont
+			long timestamp = sie.getTimeInteval();
+			feaIndex = timestampFea.getFeaIndex(beginIndex, timestamp);
+			sfe.addFea(feaIndex);
+			beginIndex += timestampFea.getDimension();
+			//histCtr
+			int histCtr = sie.getHistCtr();
+			feaIndex = histCtrFea.getFeaIndex(beginIndex, histCtr);
+			sfe.addFea(feaIndex);
+			beginIndex += histCtrFea.getDimension();
 		}
 	}
 	

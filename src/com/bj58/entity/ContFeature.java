@@ -15,6 +15,14 @@ public class ContFeature {
 		this.dimension = dim;
 		this.interval = (max + 1 - min) / this.dimension;
 	}
+	public ContFeature(String feaname, double min, double max, double interval)
+	{
+		this.feaname = feaname;
+		this.min = min;
+		this.max = max;
+		this.dimension = (int) ((max - min)/interval)+1;
+		this.interval = interval;
+	}
 	
 	public String getFeaname() {
 		return feaname;
