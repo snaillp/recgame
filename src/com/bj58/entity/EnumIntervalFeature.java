@@ -1,8 +1,9 @@
 package com.bj58.entity;
 
-public class EnumIntervalFeature {
+public class EnumIntervalFeature implements BaseFeature {
 	//enumI min,max,interval dim
 	private String feaname;
+	private String featype = "int";
 	private int min;
 	private int max;
 	private int interval; //
@@ -24,6 +25,12 @@ public class EnumIntervalFeature {
 	}
 	public void setFeaname(String feaname) {
 		this.feaname = feaname;
+	}
+	public String getFeatype() {
+		return featype;
+	}
+	public void setFeatype(String featype) {
+		this.featype = featype;
 	}
 	public int getMin() {
 		return min;
@@ -52,5 +59,10 @@ public class EnumIntervalFeature {
 	public int getFeaIndex(int beginIndex, int value){
 		int ind = value - this.min + 1;
 		return beginIndex + ind;
+	}
+	@Override
+	public int getFeaIndex(int beginIndex, double value) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

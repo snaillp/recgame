@@ -1,7 +1,8 @@
 package com.bj58.entity;
 
-public class ContFeature {
+public class ContFeature implements BaseFeature  {
 	private String feaname;
+	private String featype = "double";
 	private double min;
 	private double max;
 	private double interval;
@@ -29,6 +30,12 @@ public class ContFeature {
 	}
 	public void setFeaname(String feaname) {
 		this.feaname = feaname;
+	}
+	public String getFeatype() {
+		return featype;
+	}
+	public void setFeatype(String featype) {
+		this.featype = featype;
 	}
 	public double getMin() {
 		return min;
@@ -60,6 +67,11 @@ public class ContFeature {
 		}
 		int ind = (int) ((value - min)/interval) + 1;
 		return beginIndex + ind;
+	}
+	@Override
+	public int getFeaIndex(int beginIndex, int value) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 	public static int getFeaIndex(int min, int max, int dim, int beginIndex, double value){

@@ -1,14 +1,19 @@
 package com.bj58.job;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
+import com.bj58.entity.BaseFeature;
 import com.bj58.entity.ContFeature;
 import com.bj58.entity.EnumAllFeature;
 import com.bj58.entity.EnumIntervalFeature;
@@ -37,15 +42,16 @@ public class SampleFeature {
 	 * 17.educationmatch: 0-1, double, 0.5 interval, 3维
 	 * 18.experiencematch: 0-1, double, 0.5 interval, 3维
 	 * 19.enttypematch: 0, 1, double, 1 interval, 2维
+	 * 19.tradematch:0-1, double, 1 interval, 2维
 	 * 20.fuliMatch: 0-10, double, 1 interval, 11维
 	 * 读取用户点击数据，帖子数据，获取原始特征
 	 * 1.cont(连续值) min,max dim(多少维)            min,max都是闭区间
 	 * 2.enumA e1,e2,... dim(和前面的枚举个数必须相等)  所有枚举值
 	 * 3.enumI min,max,interval dim
 	 */
-	public static class PositionFeatureMapper extends Mapper<Object, Text, Text, Text> {
+	public static class PositionFeatureMapper extends Mapper<Object, Text, Text, NullWritable> {
 		//TODO:统计值范围
-		private ContFeature timestampFea = new ContFeature("timestamp", 0, 10000, 10000);
+		private ContFeature timestampFea = new ContFeature("timeInteval", 0, 10000, 10000);
 		private ContFeature histCtrFea = new ContFeature("histCtr", 0, 10000, 10001);
 		//TODO:统计值范围
 		private EnumAllFeature sourceFea = new EnumAllFeature("source", new ArrayList<Integer>(){{add(0); add(1);add(2);}});
@@ -54,10 +60,11 @@ public class SampleFeature {
 		private EnumIntervalFeature expFea = new EnumIntervalFeature("experience", 0, 7);
 		private EnumIntervalFeature enttypeFea = new EnumIntervalFeature("enttype", 0, 10);
 		private EnumIntervalFeature tradeFea = new EnumIntervalFeature("trade", 0,53);
-		private EnumIntervalFeature fuliFea = new EnumIntervalFeature("fuli", 0, 10);
+		//福利是多值，特殊处理
+		private EnumIntervalFeature fuliFea = new EnumIntervalFeature("fuliSet", 0, 10);
 		private EnumAllFeature freshFea = new EnumAllFeature("fresh", new ArrayList<Integer>(){{add(0); add(1);}});
 		//TODO:统计值范围
-		private ContFeature highlightFea = new ContFeature("highlight", 0, 10, 11);
+		private ContFeature highlightFea = new ContFeature("highlights", 0, 10, 11);
 		private EnumIntervalFeature additionFea = new EnumIntervalFeature("additional", 0, 4);
 		private ContFeature localmatchFea = new ContFeature("localmatch", 0, 4, 0.5);
 		private ContFeature catematchFea = new ContFeature("catematch", 0, 4, 0.5);
@@ -65,37 +72,90 @@ public class SampleFeature {
 		private ContFeature edumatchFea = new ContFeature("educationmatch", 0, 1, 0.5);
 		private ContFeature expmatchFea = new ContFeature("experiencematch", 0, 1, 0.5);
 		private EnumAllFeature entmatchFea = new EnumAllFeature("enttypematch", new ArrayList<Integer>(){{add(0); add(1);}});
-		private ContFeature fulimatchFea = new ContFeature("filimatch", 0, 10, 1);
+		private EnumAllFeature tradematchFea = new EnumAllFeature("tradematch", new ArrayList<Integer>(){{add(0); add(1);}});
+		private ContFeature fulimatchFea = new ContFeature("fuliMatch", 0, 10, 1);
+		List<BaseFeature> feaList = new ArrayList(){{
+			add(timestampFea);
+			add(histCtrFea);
+			add(sourceFea);
+			add(salaryFea);
+			add(eduFea);
+			add(expFea);
+			add(enttypeFea);
+			add(tradeFea);
+			add(freshFea);
+			add(highlightFea);
+			add(additionFea);
+			add(localmatchFea);
+			add(catematchFea);
+			add(salarymatchFea);
+			add(edumatchFea);
+			add(expmatchFea);
+			add(entmatchFea);
+			add(fulimatchFea);
+			}};
 		@Override
 		protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-			String inputfile = ((FileSplit)context.getInputSplit()).getPath().toString();
+//			String inputfile = ((FileSplit)context.getInputSplit()).getPath().toString();
 			String line = value.toString();
 			String[] lineArray = line.trim().split("\t");
 			SampleInfoEntity sie = SampleInfoEntity.fromJson(lineArray[1]);
 			SampleLrFeatureEntity sfe = new SampleLrFeatureEntity();
+			sfe.setLabel(sie.getLable());
 			//公共变量
 			int beginIndex = 0;
 			int feaIndex = 0;
-			//时间戳,cont
-			long timestamp = sie.getTimeInteval();
-			feaIndex = timestampFea.getFeaIndex(beginIndex, timestamp);
-			sfe.addFea(feaIndex);
-			beginIndex += timestampFea.getDimension();
-			//histCtr
-			int histCtr = sie.getHistCtr();
-			feaIndex = histCtrFea.getFeaIndex(beginIndex, histCtr);
-			sfe.addFea(feaIndex);
-			beginIndex += histCtrFea.getDimension();
-			//source
-			int source = sie.getSource();
-			feaIndex = sourceFea.getFeaIndex(beginIndex, source);
-			sfe.addFea(feaIndex);
-			beginIndex += sourceFea.getDimention();
-			//salary
-			int salary = sie.getSalary();
-			feaIndex = salaryFea.getFeaIndex(beginIndex, salary);
-			sfe.addFea(feaIndex);
-			beginIndex += salaryFea.getDimension();
+			for(BaseFeature fea: feaList){
+				String fieldname = fea.getFeaname();
+				
+				try {
+					Field field = sie.getClass().getDeclaredField(fieldname);
+					field.setAccessible(true);
+					field.get(sie);
+					if(fea.getFeatype().equals("double")){
+						feaIndex = fea.getFeaIndex(beginIndex, field.getDouble(sie));
+					}else if(fea.getFeatype().equals("int")){
+						feaIndex = fea.getFeaIndex(beginIndex, field.getInt(sie));
+					}
+					sfe.addFea(feaIndex);
+					beginIndex += fea.getDimension();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
+			}
+			//特殊处理福利
+			Set<Integer> fuliSet = sie.getFuliSet();
+			for(int fl: fuliSet){
+				feaIndex = fuliFea.getFeaIndex(beginIndex, fl);
+				sfe.addFea(feaIndex);
+			}
+			context.write(new Text(sfe.toString()), NullWritable.get());
+//			//时间戳,cont
+//			long timestamp = sie.getTimeInteval();
+//			feaIndex = timestampFea.getFeaIndex(beginIndex, timestamp);
+//			sfe.addFea(feaIndex);
+//			beginIndex += timestampFea.getDimension();
+//			//histCtr
+//			int histCtr = sie.getHistCtr();
+//			feaIndex = histCtrFea.getFeaIndex(beginIndex, histCtr);
+//			sfe.addFea(feaIndex);
+//			beginIndex += histCtrFea.getDimension();
+//			//source
+//			int source = sie.getSource();
+//			feaIndex = sourceFea.getFeaIndex(beginIndex, source);
+//			sfe.addFea(feaIndex);
+//			beginIndex += sourceFea.getDimention();
+//			//salary
+//			int salary = sie.getSalary();
+//			feaIndex = salaryFea.getFeaIndex(beginIndex, salary);
+//			sfe.addFea(feaIndex);
+//			beginIndex += salaryFea.getDimension();
+//			//edu
+//			int edu = sie.getEducation();
+//			feaIndex = eduFea.getFeaIndex(beginIndex, edu);
+//			sfe.addFea(feaIndex);
+//			beginIndex += eduFea.getDimension();
 		}
 	}
 	
