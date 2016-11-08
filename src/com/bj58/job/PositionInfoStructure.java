@@ -144,20 +144,33 @@ public class PositionInfoStructure {
 			String keyStr = key.toString();
 			String realKey = keyStr.substring(0, keyStr.length()-2);
 			int histCtr = -1;
+			double ctrLevel = 10000;
+//			List<String> positionList = new ArrayList();
 			for(Text val: values){
 				String vl = val.toString();
 				if(vl.startsWith("A")){
 					double histCtrDouble = Double.parseDouble(vl.substring(2));
-					histCtr = (int)(histCtrDouble * 100000);
+					histCtr = (int)(histCtrDouble * ctrLevel);
 				}else if(vl.startsWith("B")){
+//					positionList.add(vl.substring(2));
 					if(histCtr < 0){
-						histCtr = 1132;
+						//平均ctr 0.0113272986073
+						histCtr = (int) (0.0113272 * ctrLevel);
 					}
 					PositionStructEntity pse = PositionStructEntity.fromJson(vl.substring(2));
 					pse.histCtr = histCtr;
 					context.write(new Text(realKey), new Text(pse.toJson()));
 				}
 			}
+//			if(histCtr < 0){
+//				//平均ctr 0.0113272986073
+//				histCtr = (int) (0.0113272 * ctrLevel);
+//			}
+//			for(String position: positionList){
+//				PositionStructEntity pse = PositionStructEntity.fromJson(position);
+//				pse.histCtr = histCtr;
+//				context.write(new Text(realKey), new Text(pse.toJson()));
+//			}
 		}
 	}
 }

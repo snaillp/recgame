@@ -135,9 +135,9 @@ public class SampleWithUserIndiv {
 		{
 			double matchDegree = 0;
 			String uFullpath = id2FullpathMap.get(ulocal);
-			String[] uFullArray = uFullpath.trim().split(",");
+			String[] uFullArray = uFullpath.trim().split("\002");
 			String sFullpath = id2FullpathMap.get(slocal);
-			String[] sFullArray = sFullpath.trim().split(",");
+			String[] sFullArray = sFullpath.trim().split("\002");
 			int sDepth=sFullArray.length;
 			int uDepth=uFullArray.length;
 			int minDepth = sDepth<uDepth?sDepth:uDepth;

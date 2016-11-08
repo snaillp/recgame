@@ -5,11 +5,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -28,13 +30,15 @@ public class UserClickInfo {
 	 */
 	public static class UserClickInfoMapper extends Mapper<Object, Text, Text, Text> {
 		private Map<String, String> disp2locaMap;
-		
 		private Map<String, String> disp2cateMap;
 		private Map<String, String> catename2cateMap;
 		
 		@Override
 		protected void setup(Context context) throws IOException, InterruptedException 
 		{
+			disp2locaMap = new HashMap();
+			disp2cateMap = new HashMap();
+			catename2cateMap = new HashMap();
 			//dislocal to local
 			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("ds_dict_cmc_displocal"), "utf-8")); // sep
 			String line;
@@ -73,56 +77,63 @@ public class UserClickInfo {
 		{
 			ClickInfoEntity cie = new ClickInfoEntity();
 			cie.cookie = lineArray[0];
-			if(lineArray[5].matches("\\d+")){
-				cie.visittime = Long.parseLong(lineArray[5]);
+			if(cie.cookie.length() < 5){
+				return cie;
+			}
+			if(lineArray[4].matches("\\d+")){
+				cie.visittime = Long.parseLong(lineArray[4])/1000;
 			}else{
 				cie.visittime = 1478167925;
 			}
 			String localTemp = null;
-			if(lineArray[11].matches("\\d+")){
-				localTemp = lineArray[11];
-			}else if(lineArray[10].matches("\\d+")){
+			if(lineArray[10].matches("\\d+")){
 				localTemp = lineArray[10];
 			}else if(lineArray[9].matches("\\d+")){
 				localTemp = lineArray[9];
 			}else if(lineArray[8].matches("\\d+")){
 				localTemp = lineArray[8];
+			}else if(lineArray[7].matches("\\d+")){
+				localTemp = lineArray[7];
 			}
 			if(null != localTemp){
 				cie.local = disp2locaMap.get(localTemp);
 			}
 			String cateTemp = null;
-			if(lineArray[15].matches("\\d+")){
-				cateTemp = lineArray[15];
-			}else if(lineArray[14].matches("\\d+")){
+			if(lineArray[14].matches("\\d+")){
 				cateTemp = lineArray[14];
 			}else if(lineArray[13].matches("\\d+")){
 				cateTemp = lineArray[13];
 			}else if(lineArray[12].matches("\\d+")){
 				cateTemp = lineArray[12];
+			}else if(lineArray[11].matches("\\d+")){
+				cateTemp = lineArray[11];
 			}
 			if(null != cateTemp){
 				//TODO: 查表现类对应的归属类，及归属类的fullpath
 				cie.cate = disp2cateMap.get(cateTemp);
 			}
-			String slotStr = lineArray[19];
+			String slotStr = lineArray[18];
 			if(slotStr.equals("-")){
 				cie.slot = 0;
 			}else{
 				//TODO: 其他展示位标示
 			}
-			if(lineArray[22].matches("\\d+")){
-				cie.pageno = Integer.parseInt(lineArray[22]);
+			String infoid = lineArray[19];
+			if(!infoid.isEmpty()){
+				cie.infoid = infoid;
+			}
+			if(lineArray[21].matches("\\d+")){
+				cie.pageno = Integer.parseInt(lineArray[21]);
 			}else{
 				cie.pageno = 0;
 			}
-			if(lineArray[23].matches("\\d+")){
-				cie.position = Integer.parseInt(lineArray[23]);
+			if(lineArray[22].matches("\\d+")){
+				cie.position = Integer.parseInt(lineArray[22]);
 			}else{
 				cie.position = 0;
 			}
-			if(lineArray[24].equals("0") || lineArray[24].equals("1")){
-				cie.label = lineArray[24];
+			if(lineArray[23].equals("0") || lineArray[23].equals("1")){
+				cie.label = lineArray[23];
 			}
 			return cie;
 		}
@@ -131,7 +142,10 @@ public class UserClickInfo {
 			String line = value.toString().trim();
 			String[] lineArray = line.split("\001");
 			ClickInfoEntity cie = parseEntity(lineArray);
-			context.write(new Text(cie.getInfoid()), new Text(cie.toJson()));
+			String infoid = cie.getInfoid();
+			if(null != infoid){
+				context.write(new Text(cie.getInfoid()), new Text(cie.toJson()));
+			}
 		}
 	}
 	
@@ -142,10 +156,10 @@ public class UserClickInfo {
 			String inputfile = ((FileSplit)context.getInputSplit()).getPath().toString();
 			String line = value.toString().trim();
 			String[] lineArray = line.split("\t");
-			if(inputfile.contains("/")){
+			if(inputfile.contains("/structdata/")){
 				//帖子数据， key: infoID，value: info
 				context.write(new Text(lineArray[0]+"\001A"), new Text("A\001"+lineArray[1]));
-			}else if(inputfile.contains("")){
+			}else if(inputfile.contains("/UserClickInfo/")){
 				//点击数据，key: infoid, value：点击数据
 //				ClickInfoEntity cie = ClickInfoEntity.fromJson(lineArray[1]);
 				context.write(new Text(lineArray[0]+"\001B"), new Text("B\001"+lineArray[1]));
@@ -159,7 +173,14 @@ public class UserClickInfo {
 				String vl = val.toString();
 				if(vl.startsWith("A")){
 					//imc
-					pse = PositionStructEntity.fromJson(vl.substring(2));
+					if(pse == null){
+						pse = PositionStructEntity.fromJson(vl.substring(2));
+					}else{
+						PositionStructEntity pseN = PositionStructEntity.fromJson(vl.substring(2));
+						if(pseN.getPostdate() > pse.getPostdate()){
+							pse = pseN;
+						}
+					}
 				}else if(vl.startsWith("B")){
 					ClickInfoEntity cie = ClickInfoEntity.fromJson(vl.substring(2));
 					UserIndivEntity uie = new UserIndivEntity(true);
