@@ -51,6 +51,7 @@ public class SampleWithPositionLabel {
 					ClickInfoEntity cie = ClickInfoEntity.fromJson(vl);
 					SampleInfoEntity sie = new SampleInfoEntity();
 					sie.timeInteval = cie.getVisittime() - pse.getPostdate();
+					sie.sid = cie.getSid();
 					sie.lable = cie.getLabel();
 					sie.cookie = cie.getCookie();
 					sie.infoid = cie.getInfoid();

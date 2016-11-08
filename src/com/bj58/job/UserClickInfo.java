@@ -80,6 +80,7 @@ public class UserClickInfo {
 			if(cie.cookie.length() < 5){
 				return cie;
 			}
+			cie.sid = lineArray[3];
 			if(lineArray[4].matches("\\d+")){
 				cie.visittime = Long.parseLong(lineArray[4])/1000;
 			}else{

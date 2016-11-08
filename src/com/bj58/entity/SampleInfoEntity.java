@@ -20,6 +20,15 @@ public class SampleInfoEntity {
 		return gson.fromJson(str, SampleInfoEntity.class);
 	}
 	
+	
+	public String getSid() {
+		return sid;
+	}
+
+	public void setSid(String sid) {
+		this.sid = sid;
+	}
+
 	public String getLable() {
 		return lable;
 	}
@@ -229,6 +238,7 @@ public class SampleInfoEntity {
 	}
 
 	public static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+	public String sid;
 	public String lable;
 	//每行特征
 	public String cookie;

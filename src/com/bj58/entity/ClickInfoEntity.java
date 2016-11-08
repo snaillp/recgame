@@ -19,6 +19,13 @@ public class ClickInfoEntity {
 	{
 		return gson.fromJson(str, ClickInfoEntity.class);
 	}
+	
+	public String getSid() {
+		return sid;
+	}
+	public void setSid(String sid) {
+		this.sid = sid;
+	}
 	public String getCookie() {
 		return cookie;
 	}
@@ -74,6 +81,7 @@ public class ClickInfoEntity {
 		this.position = position;
 	}
 	public static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+	public String sid;
 	public String cookie;
 	public String infoid;
 	public String label;
