@@ -76,10 +76,10 @@ public class UserClickInfo {
 		private ClickInfoEntity parseEntity(String[] lineArray)
 		{
 			ClickInfoEntity cie = new ClickInfoEntity();
-			cie.cookie = lineArray[0];
-			if(cie.cookie.length() < 5){
+			if(lineArray[0].length() < 5){
 				return cie;
 			}
+			cie.cookie = lineArray[0];
 			cie.sid = lineArray[3];
 			if(lineArray[4].matches("\\d+")){
 				cie.visittime = Long.parseLong(lineArray[4])/1000;
@@ -163,7 +163,7 @@ public class UserClickInfo {
 			}else if(inputfile.contains("/UserClickInfo/")){
 				//点击数据，key: infoid, value：点击数据
 //				ClickInfoEntity cie = ClickInfoEntity.fromJson(lineArray[1]);
-				context.write(new Text(lineArray[0]+"\001B"), new Text("B\001"+lineArray[1]));
+				context.write(new Text(lineArray[0]+"\001C"), new Text("C\001"+lineArray[1]));
 			}
 		}
 	}
@@ -182,7 +182,7 @@ public class UserClickInfo {
 							pse = pseN;
 						}
 					}
-				}else if(vl.startsWith("B")){
+				}else if(vl.startsWith("C")){
 					ClickInfoEntity cie = ClickInfoEntity.fromJson(vl.substring(2));
 					UserIndivEntity uie = new UserIndivEntity(true);
 					if(null != pse){

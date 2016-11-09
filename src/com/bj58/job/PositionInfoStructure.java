@@ -36,7 +36,7 @@ public class PositionInfoStructure {
 				pse.cate = lineArray[2];
 			}
 			if(lineArray[8].matches("\\d+")){
-				pse.postdate = Long.parseLong(lineArray[8]);
+				pse.postdate = Long.parseLong(lineArray[8])/1000;
 			}else{
 				pse.postdate = 1469527810;
 			}
@@ -50,6 +50,10 @@ public class PositionInfoStructure {
 					if(l.matches("\\d+") && !pse.local.contains(l)){
 						pse.local.add(l);
 					}
+				}
+			}else{
+				if(localStr.matches("\\d+")){
+					pse.local.add(localStr);
 				}
 			}
 			String salStr = lineArray[14].trim();
@@ -85,7 +89,11 @@ public class PositionInfoStructure {
 				pse.experience = 0;
 			}
 			if(lineArray[17].matches("\\d+")){
-				pse.trade = Integer.parseInt(lineArray[17]) - 243;
+				int trade = Integer.parseInt(lineArray[17]) - 243;
+				if(trade < 1 || trade > 53){
+					pse.trade = 0;
+				}
+				pse.trade = trade;
 			}
 			if(lineArray[18].matches("\\d+")){
 				pse.enttype = Integer.parseInt(lineArray[18]) - 1475;
@@ -112,11 +120,16 @@ public class PositionInfoStructure {
 			String highlightsStr = lineArray[21];
 			if(highlightsStr.contains("|")){
 				pse.highlights = highlightsStr.split("|").length;
-			}else{
+			}else if(highlightsStr.isEmpty()){
 				pse.highlights = 0;
+			}else{
+				pse.highlights = 1;
 			}
 			if(lineArray[22].matches("\\d+")){
 				pse.additional = Integer.parseInt(lineArray[22]) - 552495;
+				if(pse.additional < 1 || pse.additional > 4){
+					pse.additional = 0;
+				}
 			}else{
 				pse.additional = 0;
 			}
@@ -130,7 +143,7 @@ public class PositionInfoStructure {
 			if(inputfile.contains("/Ctr")){
 				//历史ctr
 				String[] lineArray = line.split("\t");
-				context.write(new Text(lineArray[0]+"\001A"), new Text("A\001"+lineArray[1]));
+				context.write(new Text(lineArray[0]+"\001A"), new Text("A\001"+lineArray[3]));
 			}else{
 				String[] lineArray = line.split("\001");
 				PositionStructEntity pse = parseEntity(lineArray);
