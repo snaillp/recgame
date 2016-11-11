@@ -1,5 +1,6 @@
 package com.bj58.entity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,12 +47,6 @@ public class EnumAllFeature implements BaseFeature {
 	public void setFeatype(String featype) {
 		this.featype = featype;
 	}
-	public int getDimention() {
-		return dimension;
-	}
-	public void setDimention(int dimension) {
-		this.dimension = dimension;
-	}
 	public Map<Integer, Integer> getIndexMap() {
 		return indexMap;
 	}
@@ -69,10 +64,9 @@ public class EnumAllFeature implements BaseFeature {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	@Override
+	
 	public int getDimension() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.dimension;
 	}
 	@Override
 	public GbdtFeatureUnit getFea(int beginIndex, int value) {
@@ -83,5 +77,10 @@ public class EnumAllFeature implements BaseFeature {
 	public GbdtFeatureUnit getFea(int beginIndex, double value) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public static void main(String[] args){
+		EnumAllFeature freshFea = new EnumAllFeature("fresh", new ArrayList<Integer>(){{add(0); add(1);}});
+		System.out.println(freshFea.getFeaIndex(0, 0));
 	}
 }

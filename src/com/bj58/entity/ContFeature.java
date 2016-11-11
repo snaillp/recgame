@@ -65,6 +65,9 @@ public class ContFeature implements BaseFeature  {
 		if(value - this.max > 0.001){
 			value = this.max;
 		}
+		if(this.min - value > 0.001){
+			value = this.min;
+		}
 		int ind = (int) ((value - min)/interval) + 1;
 		return beginIndex + ind;
 	}

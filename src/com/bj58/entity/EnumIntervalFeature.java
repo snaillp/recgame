@@ -63,6 +63,9 @@ public class EnumIntervalFeature implements BaseFeature {
 		this.dimension = dimension;
 	}
 	public int getFeaIndex(int beginIndex, int value){
+		if(value>this.max || value<this.min){
+			value = min;
+		}
 		int ind = value - this.min + 1;
 		return beginIndex + ind;
 	}

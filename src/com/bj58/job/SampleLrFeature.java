@@ -51,8 +51,8 @@ public class SampleLrFeature {
 	 */
 	public static class SampleLrFeatureMapper extends Mapper<Object, Text, Text, Text> {
 		//min:0, max:253617349, avg:11199388
-		private ContFeature timestampFea = new ContFeature("timeInteval", 0, 260000000, 10000);
-		private ContFeature histCtrFea = new ContFeature("histCtr", 0, 10000, 10001);
+		private ContFeature timestampFea = new ContFeature("timeInteval", 0, 260000000, 10000); //1-10000
+		private ContFeature histCtrFea = new ContFeature("histCtr", 0, 10000, 10001);           //10001-20002
 		//TODO:统计值范围
 		private EnumIntervalFeature sourceFea = new EnumIntervalFeature("source", 0, 15);
 		private EnumIntervalFeature salaryFea = new EnumIntervalFeature("salary", 0, 10);
@@ -71,8 +71,8 @@ public class SampleLrFeature {
 		private ContFeature salarymatchFea = new ContFeature("salarymatch", 0, 1, 0.5);
 		private ContFeature edumatchFea = new ContFeature("educationmatch", 0, 1, 0.5);
 		private ContFeature expmatchFea = new ContFeature("experiencematch", 0, 1, 0.5);
-		private EnumAllFeature entmatchFea = new EnumAllFeature("enttypematch", new ArrayList<Integer>(){{add(0); add(1);}});
-		private EnumAllFeature tradematchFea = new EnumAllFeature("tradematch", new ArrayList<Integer>(){{add(0); add(1);}});
+		private ContFeature entmatchFea = new ContFeature("enttypematch", 0, 1, 2);
+		private ContFeature tradematchFea = new ContFeature("tradematch", 0, 1, 2);
 		private ContFeature fulimatchFea = new ContFeature("fuliMatch", 0, 10, 1);
 		List<BaseFeature> feaList = new ArrayList(){{
 			add(timestampFea);
