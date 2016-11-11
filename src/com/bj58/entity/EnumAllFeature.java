@@ -1,5 +1,6 @@
 package com.bj58.entity;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,13 +18,17 @@ public class EnumAllFeature implements BaseFeature {
 		this.feaname = feaname;
 		this.dimension = vList.size();
 		this.valueList = vList;
-		for(int i=1; i<=this.valueList.size(); ++i){
-			indexMap.put(valueList.get(i), i);
+		indexMap = new HashMap();
+		for(int i=0; i<this.valueList.size(); ++i){
+			indexMap.put(valueList.get(i), i+1);
 		}
 	}
 	public void setValueList(List<Integer> vList){
 		this.dimension = vList.size();
 		this.valueList = vList;
+		if(null == indexMap){
+			indexMap = new HashMap();
+		}
 		for(int i=1; i<=this.valueList.size(); ++i){
 			indexMap.put(valueList.get(i), i);
 		}
@@ -68,5 +73,15 @@ public class EnumAllFeature implements BaseFeature {
 	public int getDimension() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+	@Override
+	public GbdtFeatureUnit getFea(int beginIndex, int value) {
+		int index = getFeaIndex(beginIndex, value);
+		return new GbdtFeatureUnit(index, value);
+	}
+	@Override
+	public GbdtFeatureUnit getFea(int beginIndex, double value) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -24,55 +24,67 @@ public class SampleWithPositionLabel {
 			String inputfile = ((FileSplit)context.getInputSplit()).getPath().toString();
 			String line = value.toString().trim();
 			String[] lineArray = line.split("\t");
-			if(inputfile.contains("tracklog/")){
-				//imc
+			if(inputfile.contains("/structdata/")){
+				//imc, key:infoid
 //				PositionStructEntity pse = PositionStructEntity.fromJson(lineArray[1]);
-				context.write(new Text(lineArray[0]+"\001A"), new Text(lineArray[1]));
-			}else if(inputfile.contains("")){
+				context.write(new Text(lineArray[0]+"\001A"), new Text("A\001"+lineArray[1]));
+			}else if(inputfile.contains("/UserClickInfo/")){
+				//click, key:infoid
 //				ClickInfoEntity cie = ClickInfoEntity.fromJson(lineArray[1]);
-				context.write(new Text(lineArray[0]+"\001B"), new Text(lineArray[1]));
+				context.write(new Text(lineArray[0]+"\001B"), new Text("B\001"+lineArray[1]));
 			}
 		}
 	}
 	public static class SampleLabelReducer extends Reducer<Text, Text, Text, Text> {
 		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 			PositionStructEntity pse = null;
-			List<String> sampleStrList = new ArrayList();
 			for(Text val: values){
 				String vl = val.toString();
 				if(vl.startsWith("A")){
-					pse = PositionStructEntity.fromJson(vl.substring(2));
+					if(pse == null){
+						pse = PositionStructEntity.fromJson(vl.substring(2));
+					}else{
+						PositionStructEntity pseN = PositionStructEntity.fromJson(vl.substring(2));
+						if(pseN.getPostdate() > pse.getPostdate()){
+							pse = pseN;
+						}
+					}
 				}else if(vl.startsWith("B")){
-					sampleStrList.add(vl.substring(2));
-				}
-			}
-			if(pse != null){
-				for(String vl: sampleStrList){
-					ClickInfoEntity cie = ClickInfoEntity.fromJson(vl);
-					SampleInfoEntity sie = new SampleInfoEntity();
-					sie.timeInteval = cie.getVisittime() - pse.getPostdate();
-					sie.sid = cie.getSid();
-					sie.lable = cie.getLabel();
-					sie.cookie = cie.getCookie();
-					sie.infoid = cie.getInfoid();
-					fromePosition2Sample(pse, sie);
-					context.write(new Text(sie.cookie), new Text(sie.toJson()));
+					if(pse != null){
+						ClickInfoEntity cie = ClickInfoEntity.fromJson(vl.substring(2));
+						SampleInfoEntity sie = new SampleInfoEntity();
+						long timeInterval = cie.getVisittime() - pse.getPostdate();
+						if(timeInterval < 0){
+							sie.timeInteval = 0;
+						}else{
+							sie.timeInteval = timeInterval;
+						}
+						sie.sid = cie.getSid();
+						sie.lable = cie.getLabel();
+						sie.cookie = cie.getCookie();
+						sie.infoid = cie.getInfoid();
+						fromePosition2Sample(pse, sie);
+						context.write(new Text(sie.cookie), new Text(sie.toJson()));
+					}
 				}
 			}
 		}
 		private void fromePosition2Sample(PositionStructEntity pse, SampleInfoEntity sie)
 		{
+			sie.local = pse.local;
+			sie.cate = pse.cate;
+			sie.histCtr = pse.histCtr;
+			sie.postdate = pse.postdate;
 			sie.source = pse.source;
 			sie.salary = pse.salary;
 			sie.education = pse.education;
 			sie.experience = pse.experience;
 			sie.enttype = pse.enttype; //公司性质，私营。。。
+			sie.trade = pse.trade;
 			sie.fuliSet = pse.fuliSet; //福利
 			sie.fresh = pse.fresh; //是否接受应届生
 			sie.highlights = pse.highlights; //职位亮点的个数
 			sie.additional = pse.additional; //额外要求
-			sie.histCtr = pse.histCtr;
-			sie.trade = pse.trade;
 		}
 	}
 }

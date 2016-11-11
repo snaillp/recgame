@@ -36,9 +36,10 @@ public class PositionInfoStructure {
 				pse.cate = lineArray[2];
 			}
 			if(lineArray[8].matches("\\d+")){
-				pse.postdate = Long.parseLong(lineArray[8])/1000;
+				//小时单位
+				pse.postdate = Long.parseLong(lineArray[8])/(3600*1000);
 			}else{
-				pse.postdate = 1469527810;
+				pse.postdate = 1469527810/3600;
 			}
 			if(lineArray[11].matches("\\d+")){
 				pse.source = Integer.parseInt(lineArray[11]);
@@ -105,7 +106,7 @@ public class PositionInfoStructure {
 				pse.enttype = 0;
 			}
 			String fuliStr = lineArray[19];
-			String[] fuliArray = fuliStr.trim().split("|");
+			String[] fuliArray = fuliStr.trim().split("\\|");
 			for(String fl: fuliArray){
 				if(fl.matches("\\d+")){
 					int fli = Integer.parseInt(fl);
@@ -119,7 +120,7 @@ public class PositionInfoStructure {
 			}
 			String highlightsStr = lineArray[21];
 			if(highlightsStr.contains("|")){
-				pse.highlights = highlightsStr.split("|").length;
+				pse.highlights = highlightsStr.split("\\|").length;
 			}else if(highlightsStr.isEmpty()){
 				pse.highlights = 0;
 			}else{

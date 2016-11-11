@@ -247,6 +247,7 @@ public class SampleInfoEntity {
 	public String cate;
 	public int histCtr;
 	public long timeInteval; //展示时间-postdate
+	public long postdate; //最后一次修改时间
 	public int source;
 	public int salary;
 	public int education;

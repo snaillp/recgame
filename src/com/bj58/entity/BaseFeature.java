@@ -6,4 +6,6 @@ public abstract interface BaseFeature {
 	public String getFeaname();
 	public String getFeatype();
 	public int getDimension();
+	public GbdtFeatureUnit getFea(int beginIndex, double value);
+	public GbdtFeatureUnit getFea(int beginIndex, int value);
 }

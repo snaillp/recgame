@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,28 +23,30 @@ public class SampleWithUserIndiv {
 	/*
 	 *  input: sample; 个性化
 	 */
-	public static class SampleLabelMapper extends Mapper<Object, Text, Text, Text> {
+	public static class SampleUserIndivMapper extends Mapper<Object, Text, Text, Text> {
 		@Override
 		protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 			String inputfile = ((FileSplit)context.getInputSplit()).getPath().toString();
 			String line = value.toString().trim();
 			String[] lineArray = line.split("\t");
-			if(inputfile.contains("/")){
-				//个性化
-				context.write(new Text(lineArray[0]+"\001A"), new Text(lineArray[1]));
-			}else if(inputfile.contains("")){
-				//sample
-				context.write(new Text(lineArray[0]+"\001B"), new Text(lineArray[1]));
+			if(inputfile.contains("/userindivmerge/")){
+				//个性化，key: cookie
+				context.write(new Text(lineArray[0]+"\001A"), new Text("A\001"+lineArray[1]));
+			}else if(inputfile.contains("/samplewithposlable/")){
+				//sample，key：cookie
+				context.write(new Text(lineArray[0]+"\001B"), new Text("B\001"+lineArray[1]));
 			}
 		}
 	}
 	
-	public static class SampleLabelReducer extends Reducer<Text, Text, Text, Text> {
+	public static class SampleUserIndivReducer extends Reducer<Text, Text, Text, Text> {
 		private Map<String, String> local2FullpathMap;
 		private Map<String, String> cate2FullpathMap;
 		@Override
 		protected void setup(Context context) throws IOException, InterruptedException 
 		{
+			local2FullpathMap = new HashMap();
+			cate2FullpathMap = new HashMap();
 			//local to fullpath
 			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("ds_dict_cmc_local"), "utf-8")); // sep
 			String line;
@@ -66,25 +69,21 @@ public class SampleWithUserIndiv {
 		}
 		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 			UserIndivEntity uie = null;
-			List<SampleInfoEntity> sampleList = new ArrayList();
+//			List<SampleInfoEntity> sampleList = new ArrayList();
+			String keyStr = key.toString();
+			String realKey = keyStr.substring(0, keyStr.length()-2);
 			for(Text val: values){
 				String vl = val.toString();
 				String vll = vl.substring(2);
 				if(vl.startsWith("A")){
 					uie = UserIndivEntity.fromJson(vll);
 				}else if(vl.startsWith("B")){
-					SampleInfoEntity sie = SampleInfoEntity.fromJson(vll);
-					sampleList.add(sie);
+					if(null != uie){
+						SampleInfoEntity sie = SampleInfoEntity.fromJson(vll);
+						userIndivMatch(uie, sie);
+						context.write(new Text(realKey), new Text(sie.toJson()));
+					}
 				}
-			}
-			//个性化匹配
-			if(uie != null){
-				//目前只有local，cate的匹配
-				for(SampleInfoEntity sie: sampleList){
-					userIndivMatch(uie, sie);
-					context.write(key, new Text(sie.toJson()));
-				}
-				
 			}
 		}
 		private void userIndivMatch(UserIndivEntity uie, SampleInfoEntity sie){
@@ -93,8 +92,14 @@ public class SampleWithUserIndiv {
 			Set<String> sampleLocalSet = sie.getLocal();
 			double localmatch = 0.0;
 			for(String ulocal: userLocalSet){
+				if(null == ulocal || ulocal.isEmpty()){
+					continue;
+				}
 				for(String slocal: sampleLocalSet){
-					localmatch += localOcateMatchDegree(ulocal, slocal, local2FullpathMap);
+					if(null == slocal || slocal.isEmpty()){
+						continue;
+					}
+					localmatch = Math.max(localmatch, localOcateMatchDegree(ulocal, slocal, local2FullpathMap));
 				}
 			}
 			sie.setLocalmatch(localmatch);
@@ -102,8 +107,10 @@ public class SampleWithUserIndiv {
 			Set<String> userCateList = uie.getCateSet();
 			String sampleCate = sie.getCate();
 			double catematch = 0.0;
-			for(String ucate: userCateList){
-				catematch += localOcateMatchDegree(ucate, sampleCate, cate2FullpathMap);
+			if(null != sampleCate && !sampleCate.isEmpty()){
+				for(String ucate: userCateList){
+					catematch = Math.max(catematch, localOcateMatchDegree(ucate, sampleCate, cate2FullpathMap));
+				}
 			}
 			sie.setCatematch(catematch);
 			//salary match
@@ -135,8 +142,14 @@ public class SampleWithUserIndiv {
 		{
 			double matchDegree = 0;
 			String uFullpath = id2FullpathMap.get(ulocal);
+			if(uFullpath == null || uFullpath.isEmpty()){
+				return matchDegree;
+			}
 			String[] uFullArray = uFullpath.trim().split("\002");
 			String sFullpath = id2FullpathMap.get(slocal);
+			if(null == sFullpath || sFullpath.isEmpty()){
+				return matchDegree;
+			}
 			String[] sFullArray = sFullpath.trim().split("\002");
 			int sDepth=sFullArray.length;
 			int uDepth=uFullArray.length;
@@ -147,37 +160,48 @@ public class SampleWithUserIndiv {
 					break;
 				}
 			}
-			if(matchDepth >= 0){
+			if(matchDepth > 0){
 				if(sDepth != uDepth){
 					//u:1,2,3, s:1,2;文档只能匹配到用户的前一级，例如用户是服务员，文档是餐饮，这时候得分为2，因为是非全匹配，-0.5分
 					if(minDepth == sDepth){
 						matchDegree = matchDepth - 0.5;
-					}
-					//u:1,2, s:1,2,3;
-					if(minDepth == uDepth){
+					}else if(minDepth == uDepth){
+						//u:1,2, s:1,2,3;
 						matchDegree = matchDepth;
 					}
 				}else{
-					matchDegree = matchDepth;
+					if(matchDepth == sDepth){
+						//u:1,2,3 s:1,2,3
+						matchDegree = matchDepth;
+					}else{
+						if(matchDepth > 1){
+							//u:1,2,3 s:1,2,4, 二级类还可以，如果是一级类匹配，没意义
+							matchDegree = matchDepth - 0.5;
+						}
+					}
 				}
 			}
 			return matchDegree;
 		}
 		public double featureMatchDegree(Set<Integer> uset, int svalue, int shigh){
 			int max = -1;
+			int min = 10000;
 			double matchDegree = 0.0;
 			for(int m: uset){
 				if(m>max){
 					max = m;
 				}
+				if(m < min){
+					min = m;
+				}
 			}
 			if(uset.contains(svalue)){
 				//全完匹配
 				matchDegree = 1;
-			}else if(shigh==1 &&svalue>max){
+			}else if(shigh==1 &&svalue>=min){
 				//例如薪水，doc提供的薪水比用户历史的高，也可以，但不是完全匹配，-0.5
 				matchDegree = 0.5;
-			}else if(shigh==-1 && svalue<max){
+			}else if(shigh==-1 && svalue<=max){
 				//例如学历，doc需要的学历低于用户学历，但不是完全匹配，-0.5
 				matchDegree = 0.5;
 			}

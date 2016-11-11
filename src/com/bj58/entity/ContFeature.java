@@ -82,6 +82,10 @@ public class ContFeature implements BaseFeature  {
 		int ind = (int) ((value - min)/interval) + 1;
 		return beginIndex + ind;
 	}
+	@Override
+	public GbdtFeatureUnit getFea(int beginIndex, double value) {
+		return new GbdtFeatureUnit(beginIndex+1, value);
+	}
 	
 	public static void main(String[] args)
 	{	//1:[0,3], 2:[4,6], 3:[7,10], 4:[11-13], 5:[14,16], 6:[17,20]
@@ -93,5 +97,12 @@ public class ContFeature implements BaseFeature  {
 		ContFeature cf = new ContFeature("testfea", min, max, dim);
 		System.out.println(cf.getFeaIndex(0, 17));
 		System.out.println(ContFeature.getFeaIndex(min, max, dim, 0, 17));
+		System.out.println(cf.getDimension());
 	}
+	@Override
+	public GbdtFeatureUnit getFea(int beginIndex, int value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }

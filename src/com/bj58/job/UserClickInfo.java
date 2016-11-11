@@ -82,9 +82,10 @@ public class UserClickInfo {
 			cie.cookie = lineArray[0];
 			cie.sid = lineArray[3];
 			if(lineArray[4].matches("\\d+")){
-				cie.visittime = Long.parseLong(lineArray[4])/1000;
+				//单位为小时
+				cie.visittime = Long.parseLong(lineArray[4])/(3600*1000);
 			}else{
-				cie.visittime = 1478167925;
+				cie.visittime = 1478167925/3600;
 			}
 			String localTemp = null;
 			if(lineArray[10].matches("\\d+")){
@@ -113,11 +114,21 @@ public class UserClickInfo {
 				//TODO: 查表现类对应的归属类，及归属类的fullpath
 				cie.cate = disp2cateMap.get(cateTemp);
 			}
-			String slotStr = lineArray[18];
+			String slotStr = lineArray[18].trim();
 			if(slotStr.equals("-")){
 				cie.slot = 0;
-			}else{
-				//TODO: 其他展示位标示
+			}else if(slotStr.equals("m_detail")){
+				cie.slot = 1;
+			}else if(slotStr.equals("resume_post_success")){
+				cie.slot = 2;
+			}else if(slotStr.equals("m404pag")){
+				cie.slot = 3;
+			}else if(slotStr.equals("m_aggregation")){
+				cie.slot = 4;
+			}else if(slotStr.equals("m_detail_near")){
+				cie.slot = 5;
+			}else if(slotStr.equals("resume_delivery_success")){
+				cie.slot = 6;
 			}
 			String infoid = lineArray[19];
 			if(!infoid.isEmpty()){
