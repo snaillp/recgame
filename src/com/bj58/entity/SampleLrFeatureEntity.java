@@ -6,6 +6,8 @@ import java.util.List;
 public class SampleLrFeatureEntity {
 	private List<Integer> feaList = new ArrayList();
 	private String label;
+	private String cookie;
+	private String infoid;
 	
 	public void addFea(int fea){
 		feaList.add(fea);
@@ -27,6 +29,22 @@ public class SampleLrFeatureEntity {
 		this.label = label;
 	}
 
+	public String getCookie() {
+		return cookie;
+	}
+
+	public void setCookie(String cookie) {
+		this.cookie = cookie;
+	}
+
+	public String getInfoid() {
+		return infoid;
+	}
+
+	public void setInfoid(String infoid) {
+		this.infoid = infoid;
+	}
+
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
@@ -35,6 +53,7 @@ public class SampleLrFeatureEntity {
 		for(int fea: feaList){
 			sb.append(sep).append(fea).append(":1");
 		}
+		sb.append(sep).append("#").append(cookie).append("\t").append(infoid);
 		return sb.toString();
 	}
 }

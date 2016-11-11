@@ -103,12 +103,13 @@ public class SampleLrFeature {
 			SampleInfoEntity sie = SampleInfoEntity.fromJson(lineArray[1]);
 			SampleLrFeatureEntity sfe = new SampleLrFeatureEntity();
 			sfe.setLabel(sie.getLable());
+			sfe.setCookie(sie.getCookie());
+			sfe.setInfoid(sie.getInfoid());
 			//公共变量
 			int beginIndex = 0;
 			int feaIndex = 0;
 			for(BaseFeature fea: feaList){
 				String fieldname = fea.getFeaname();
-				
 				try {
 					Field field = sie.getClass().getDeclaredField(fieldname);
 					field.setAccessible(true);

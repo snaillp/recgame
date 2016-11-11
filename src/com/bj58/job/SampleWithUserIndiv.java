@@ -78,11 +78,11 @@ public class SampleWithUserIndiv {
 				if(vl.startsWith("A")){
 					uie = UserIndivEntity.fromJson(vll);
 				}else if(vl.startsWith("B")){
+					SampleInfoEntity sie = SampleInfoEntity.fromJson(vll);
 					if(null != uie){
-						SampleInfoEntity sie = SampleInfoEntity.fromJson(vll);
 						userIndivMatch(uie, sie);
-						context.write(new Text(realKey), new Text(sie.toJson()));
 					}
+					context.write(new Text(realKey), new Text(sie.toJson()));
 				}
 			}
 		}
