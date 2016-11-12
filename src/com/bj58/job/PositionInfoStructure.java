@@ -26,6 +26,9 @@ public class PositionInfoStructure {
 
 		public PositionStructEntity parseEntity(String[] lineArray)
 		{
+			if(lineArray[0].length() < 5){
+				return null;
+			}
 			PositionStructEntity pse = new PositionStructEntity();
 			pse.infoid = lineArray[0];
 			if(lineArray[4].matches("\\d+")){
@@ -37,9 +40,9 @@ public class PositionInfoStructure {
 			}
 			if(lineArray[8].matches("\\d+")){
 				//小时单位
-				pse.postdate = Long.parseLong(lineArray[8])/(3600*1000);
+				pse.postdate = Long.parseLong(lineArray[8])/(5*60*1000);
 			}else{
-				pse.postdate = 1469527810/3600;
+				pse.postdate = 1469527810/(5*60);
 			}
 			if(lineArray[11].matches("\\d+")){
 				pse.source = Integer.parseInt(lineArray[11]);
@@ -92,7 +95,7 @@ public class PositionInfoStructure {
 			if(lineArray[17].matches("\\d+")){
 				int trade = Integer.parseInt(lineArray[17]) - 243;
 				if(trade < 1 || trade > 53){
-					pse.trade = 0;
+					trade = 0;
 				}
 				pse.trade = trade;
 			}
@@ -148,7 +151,14 @@ public class PositionInfoStructure {
 			}else{
 				String[] lineArray = line.split("\001");
 				PositionStructEntity pse = parseEntity(lineArray);
-				context.write(new Text(pse.getInfoid()+"\001B"), new Text("B\001"+pse.toJson()));
+				if(null == pse){
+					return;
+				}
+				String infoid = pse.getInfoid();
+				if(null == infoid){
+					return;
+				}
+				context.write(new Text(infoid+"\001B"), new Text("B\001"+pse.toJson()));
 			}
 		}
 	}
@@ -169,22 +179,13 @@ public class PositionInfoStructure {
 //					positionList.add(vl.substring(2));
 					if(histCtr < 0){
 						//平均ctr 0.0113272986073
-						histCtr = (int) (0.0113272 * ctrLevel);
+						histCtr = (int) (0.01273646 * ctrLevel);
 					}
 					PositionStructEntity pse = PositionStructEntity.fromJson(vl.substring(2));
 					pse.histCtr = histCtr;
 					context.write(new Text(realKey), new Text(pse.toJson()));
 				}
 			}
-//			if(histCtr < 0){
-//				//平均ctr 0.0113272986073
-//				histCtr = (int) (0.0113272 * ctrLevel);
-//			}
-//			for(String position: positionList){
-//				PositionStructEntity pse = PositionStructEntity.fromJson(position);
-//				pse.histCtr = histCtr;
-//				context.write(new Text(realKey), new Text(pse.toJson()));
-//			}
 		}
 	}
 }

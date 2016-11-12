@@ -51,8 +51,8 @@ public class SampleLrFeature {
 	 */
 	public static class SampleLrFeatureMapper extends Mapper<Object, Text, Text, Text> {
 		//min:0, max:253617349, avg:11199388
-		private ContFeature timestampFea = new ContFeature("timeInteval", 0, 260000000, 10000); //1-10000
-		private ContFeature histCtrFea = new ContFeature("histCtr", 0, 10000, 10001);           //10001-20002
+		private ContFeature timestampFea = new ContFeature("timeInteval", 0, 999999, 10000); //1-10000
+		private ContFeature histCtrFea = new ContFeature("histCtr", 0, 9999, 10000);           //10001-20000
 		//TODO:统计值范围
 		private EnumIntervalFeature sourceFea = new EnumIntervalFeature("source", 0, 15);
 		private EnumIntervalFeature salaryFea = new EnumIntervalFeature("salary", 0, 10);
@@ -115,9 +115,9 @@ public class SampleLrFeature {
 					field.setAccessible(true);
 					field.get(sie);
 					if(fea.getFeatype().equals("double")){
-						feaIndex = fea.getFeaIndex(beginIndex, field.getDouble(sie));
+						feaIndex = fea.getFeaIndex(beginIndex, (double)field.getDouble(sie));
 					}else if(fea.getFeatype().equals("int")){
-						feaIndex = fea.getFeaIndex(beginIndex, field.getInt(sie));
+						feaIndex = fea.getFeaIndex(beginIndex, (int)field.getInt(sie));
 					}
 					sfe.addFea(feaIndex);
 					beginIndex += fea.getDimension();

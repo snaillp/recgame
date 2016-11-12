@@ -75,17 +75,19 @@ public class UserClickInfo {
 		}
 		private ClickInfoEntity parseEntity(String[] lineArray)
 		{
-			ClickInfoEntity cie = new ClickInfoEntity();
 			if(lineArray[0].length() < 5){
-				return cie;
+				return null;
 			}
+			ClickInfoEntity cie = new ClickInfoEntity();
 			cie.cookie = lineArray[0];
-			cie.sid = lineArray[3];
+			if(!lineArray[3].isEmpty()){
+				cie.sid = lineArray[3];
+			}
 			if(lineArray[4].matches("\\d+")){
 				//单位为小时
-				cie.visittime = Long.parseLong(lineArray[4])/(3600*1000);
+				cie.visittime = Long.parseLong(lineArray[4])/(5*60*1000);
 			}else{
-				cie.visittime = 1478167925/3600;
+				cie.visittime = 1478167925/(5*60);
 			}
 			String localTemp = null;
 			if(lineArray[10].matches("\\d+")){
@@ -111,7 +113,7 @@ public class UserClickInfo {
 				cateTemp = lineArray[11];
 			}
 			if(null != cateTemp){
-				//TODO: 查表现类对应的归属类，及归属类的fullpath
+				//查表现类对应的归属类，及归属类的fullpath
 				cie.cate = disp2cateMap.get(cateTemp);
 			}
 			String slotStr = lineArray[18].trim();
@@ -131,7 +133,7 @@ public class UserClickInfo {
 				cie.slot = 6;
 			}
 			String infoid = lineArray[19];
-			if(!infoid.isEmpty()){
+			if(infoid.length() > 5){
 				cie.infoid = infoid;
 			}
 			if(lineArray[21].matches("\\d+")){
@@ -154,9 +156,37 @@ public class UserClickInfo {
 			String line = value.toString().trim();
 			String[] lineArray = line.split("\001");
 			ClickInfoEntity cie = parseEntity(lineArray);
+			if(null == cie){
+				return;
+			}
 			String infoid = cie.getInfoid();
 			if(null != infoid){
-				context.write(new Text(cie.getInfoid()), new Text(cie.toJson()));
+				context.write(new Text(cie.getSid()), new Text(cie.toJson()));
+			}
+		}
+	}
+	public static class UserClickInfoReducer extends Reducer<Text, Text, Text, Text> {
+		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+			//以query为单位，去掉全0和全1的
+			List<ClickInfoEntity> entityList = new ArrayList();
+			int count0 = 0;
+			int count1 = 0;
+			for(Text val: values){
+				String vl = val.toString();
+				ClickInfoEntity cie = ClickInfoEntity.fromJson(vl);
+				if(cie.getLabel().equals("0")){
+					count0++;
+				}else{
+					count1++;
+				}
+				entityList.add(cie);
+			}
+			int entityNum = entityList.size();
+			if(count0 == entityNum || count1 == entityNum){
+				return;
+			}
+			for(ClickInfoEntity val: entityList){
+				context.write(new Text(val.getInfoid()), new Text(val.toJson()));
 			}
 		}
 	}

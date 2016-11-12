@@ -81,6 +81,9 @@ public class ContFeature implements BaseFeature  {
 		if(value - max > 0.001){
 			value = max;
 		}
+		if(min - value > 0.001){
+			value = min;
+		}
 		double interval = (max + 1 - min) / dim;
 		int ind = (int) ((value - min)/interval) + 1;
 		return beginIndex + ind;
@@ -98,8 +101,8 @@ public class ContFeature implements BaseFeature  {
 		int max = 33;
 		int dim = 10;
 		ContFeature cf = new ContFeature("testfea", min, max, dim);
-		System.out.println(cf.getFeaIndex(0, 17));
-		System.out.println(ContFeature.getFeaIndex(min, max, dim, 0, 17));
+		System.out.println(cf.getFeaIndex(0, -1.0));
+		System.out.println(ContFeature.getFeaIndex(min, max, dim, 0, 0));
 		System.out.println(cf.getDimension());
 	}
 	@Override

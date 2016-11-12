@@ -53,12 +53,15 @@ public class SampleGbdtFea {
 				private ContFeature timestampFea = new ContFeature("timeInteval", 0, 1, 1);
 				private ContFeature histCtrFea = new ContFeature("histCtr", 0, 1, 1);
 				//TODO:统计值范围
-				private EnumIntervalFeature sourceFea = new EnumIntervalFeature("source", 0, 15);
-				private EnumIntervalFeature salaryFea = new EnumIntervalFeature("salary", 0, 10);
-				private EnumIntervalFeature eduFea = new EnumIntervalFeature("education", 0, 8);
-				private EnumIntervalFeature expFea = new EnumIntervalFeature("experience", 0, 7);
+//				private EnumIntervalFeature sourceFea = new EnumIntervalFeature("source", 0, 15);
+//				private EnumIntervalFeature salaryFea = new EnumIntervalFeature("salary", 0, 10);
+//				private EnumIntervalFeature eduFea = new EnumIntervalFeature("education", 0, 8);
+//				private EnumIntervalFeature expFea = new EnumIntervalFeature("experience", 0, 7);
+				private ContFeature salaryFea = new ContFeature("salary", 0, 1, 1);
+				private ContFeature eduFea = new ContFeature("education", 0, 1, 1);
+				private ContFeature expFea = new ContFeature("experience", 0, 1, 1);
 				private EnumIntervalFeature enttypeFea = new EnumIntervalFeature("enttype", 0, 10);
-				private EnumIntervalFeature tradeFea = new EnumIntervalFeature("trade", 0,53);
+//				private EnumIntervalFeature tradeFea = new EnumIntervalFeature("trade", 0,53);
 				//福利是多值，特殊处理
 				private EnumIntervalFeature fuliFea = new EnumIntervalFeature("fuliSet", 0, 10);
 				private EnumAllFeature freshFea = new EnumAllFeature("fresh", new ArrayList<Integer>(){{add(0); add(1);}});
@@ -76,12 +79,12 @@ public class SampleGbdtFea {
 				List<BaseFeature> feaList = new ArrayList(){{
 					add(timestampFea);
 					add(histCtrFea);
-					add(sourceFea);
+//					add(sourceFea);
 					add(salaryFea);
 					add(eduFea);
 					add(expFea);
 					add(enttypeFea);
-					add(tradeFea);
+//					add(tradeFea);
 					add(freshFea);
 					add(highlightFea);
 					add(additionFea);
@@ -102,6 +105,8 @@ public class SampleGbdtFea {
 			SampleGbdtFeatureEntity sgfe = new SampleGbdtFeatureEntity();
 			sgfe.setLabel(sie.getLable());
 			sgfe.setQid(sie.getSid());
+			sgfe.setCookie(sie.getCookie());
+			sgfe.setInfoid(sie.getInfoid());
 			//公共变量
 			int beginIndex = 0;
 			GbdtFeatureUnit feaUnit = null;
@@ -136,19 +141,8 @@ public class SampleGbdtFea {
 	
 	public static class SampleGbdtFeaReducer extends Reducer<Text, Text, Text, Text> {
 		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-			List<Text> sampleList = new ArrayList();
-			boolean queryClick = false;
 			for(Text val: values){
-				String vl = val.toString();
-				if(vl.startsWith("1")){
-					queryClick = true;
-				}
-				sampleList.add(val);
-			}
-			if(queryClick){
-				for(Text s: sampleList){
-					context.write(s, new Text(""));
-				}
+				context.write(val, new Text(""));
 			}
 		}
 	}

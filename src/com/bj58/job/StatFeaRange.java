@@ -1,6 +1,7 @@
 package com.bj58.job;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,8 +21,16 @@ public class StatFeaRange {
 			String line = value.toString().trim();
 			String[] lineArray = line.split("\t");
 			SampleInfoEntity sie = SampleInfoEntity.fromJson(lineArray[1]);
-			long timeInterval = sie.getTimeInteval();
-			context.write(new Text(String.valueOf(timeInterval)), new Text(""));
+			String fieldname = context.getConfiguration().get("field");
+			try {
+				Field field = sie.getClass().getDeclaredField(fieldname);
+				field.setAccessible(true);
+				field.get(sie);
+				context.write(new Text(String.valueOf(field.get(sie))), new Text(sie.getLable()));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	

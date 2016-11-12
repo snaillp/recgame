@@ -25,8 +25,8 @@ public class TestSampleWithPositionLabel {
 		{
 			DateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd");
 			try {
-				Date begin = df.parse("2016-09-25");
-				defaultvisittime = begin.getTime()/1000;
+				Date begin = df.parse("2016-09-26");
+				defaultvisittime = begin.getTime()/(5*60*1000);
 			}catch(Exception e){
 				e.printStackTrace();
 			}
@@ -67,8 +67,8 @@ public class TestSampleWithPositionLabel {
 						}
 					}
 				}else if(vl.startsWith("B")){
+					ClickInfoEntity cie = ClickInfoEntity.fromJson(vl.substring(2));
 					if(pse != null){
-						ClickInfoEntity cie = ClickInfoEntity.fromJson(vl.substring(2));
 						SampleInfoEntity sie = new SampleInfoEntity();
 						long timeInterval = cie.getVisittime() - pse.getPostdate();
 						if(timeInterval < 0){

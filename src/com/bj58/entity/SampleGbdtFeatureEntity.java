@@ -22,6 +22,8 @@ public class SampleGbdtFeatureEntity {
 	private List<GbdtFeatureUnit> feaList;
 	private String label;
 	private String qid; //query id
+	private String cookie;
+	private String infoid;
 	
 	public void addFea(GbdtFeatureUnit gfu){
 		if(null == feaList){
@@ -48,6 +50,22 @@ public class SampleGbdtFeatureEntity {
 	public void setQid(String qid) {
 		this.qid = qid;
 	}
+	public String getCookie() {
+		return cookie;
+	}
+
+	public void setCookie(String cookie) {
+		this.cookie = cookie;
+	}
+
+	public String getInfoid() {
+		return infoid;
+	}
+
+	public void setInfoid(String infoid) {
+		this.infoid = infoid;
+	}
+
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
@@ -57,6 +75,7 @@ public class SampleGbdtFeatureEntity {
 		for(GbdtFeatureUnit fea: feaList){
 			sb.append(sep).append(fea.toString());
 		}
+		sb.append(sep).append("#").append(cookie).append("\t").append(infoid);
 		return sb.toString();
 	}
 }
