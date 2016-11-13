@@ -67,7 +67,7 @@ public class SampleGbdtFea {
 				private EnumAllFeature freshFea = new EnumAllFeature("fresh", new ArrayList<Integer>(){{add(0); add(1);}});
 				//TODO:统计值范围
 				private ContFeature highlightFea = new ContFeature("highlights", 0, 1, 1);
-				private ContFeature additionFea = new ContFeature("additional", 0, 1, 1);
+				private EnumIntervalFeature additionFea = new EnumIntervalFeature("additional", 0, 4);
 				private ContFeature localmatchFea = new ContFeature("localmatch", 0, 1, 1);
 				private ContFeature catematchFea = new ContFeature("catematch", 0, 1, 1);
 				private ContFeature salarymatchFea = new ContFeature("salarymatch", 0, 1, 1);

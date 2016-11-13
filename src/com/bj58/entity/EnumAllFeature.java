@@ -71,7 +71,7 @@ public class EnumAllFeature implements BaseFeature {
 	@Override
 	public GbdtFeatureUnit getFea(int beginIndex, int value) {
 		int index = getFeaIndex(beginIndex, value);
-		return new GbdtFeatureUnit(index, value);
+		return new GbdtFeatureUnit(index, 1.0);
 	}
 	@Override
 	public GbdtFeatureUnit getFea(int beginIndex, double value) {
