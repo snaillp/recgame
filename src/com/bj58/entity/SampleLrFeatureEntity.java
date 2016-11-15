@@ -8,6 +8,7 @@ public class SampleLrFeatureEntity {
 	private String label;
 	private String cookie;
 	private String infoid;
+	private boolean needNotes = true;
 	
 	public void addFea(int fea){
 		feaList.add(fea);
@@ -45,6 +46,14 @@ public class SampleLrFeatureEntity {
 		this.infoid = infoid;
 	}
 
+	public boolean isNeedNotes() {
+		return needNotes;
+	}
+
+	public void setNeedNotes(boolean needNotes) {
+		this.needNotes = needNotes;
+	}
+
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
@@ -53,7 +62,9 @@ public class SampleLrFeatureEntity {
 		for(int fea: feaList){
 			sb.append(sep).append(fea).append(":1");
 		}
-		sb.append(sep).append("#").append(cookie).append("\t").append(infoid);
+		if(this.needNotes){
+			sb.append(sep).append("#").append(cookie).append("\t").append(infoid);
+		}
 		return sb.toString();
 	}
 }

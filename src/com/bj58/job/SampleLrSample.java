@@ -24,6 +24,10 @@ public class SampleLrSample {
 					return;
 				}
 			}
+			int anIndex = line.indexOf("#");
+			if(anIndex >= 0){
+				line = line.substring(0, anIndex);
+			}
 			context.write(new Text(line), new Text(""));
 		}
 	}

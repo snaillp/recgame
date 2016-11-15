@@ -50,8 +50,10 @@ public class SampleLrFeature {
 	 * 3.enumI min,max,interval dim
 	 */
 	public static class SampleLrFeatureMapper extends Mapper<Object, Text, Text, Text> {
+		private boolean needNotes = true; //是否需要在样本末尾加入cookie，infoID等注释 
 		//min:0, max:253617349, avg:11199388
-		private ContFeature timestampFea = new ContFeature("timeInteval", 0, 999999, 10000); //1-10000
+//		private ContFeature timestampFea = new ContFeature("timeInteval", 0, 999999, 10000); //1-10000
+		private ContFeature postdateFea = new ContFeature("postdate", 1000000, 4999999, 10000);
 		private ContFeature histCtrFea = new ContFeature("histCtr", 0, 9999, 10000);           //10001-20000
 		//TODO:统计值范围
 		private EnumIntervalFeature sourceFea = new EnumIntervalFeature("source", 0, 15);
@@ -75,7 +77,7 @@ public class SampleLrFeature {
 		private ContFeature tradematchFea = new ContFeature("tradematch", 0, 1, 2);
 		private ContFeature fulimatchFea = new ContFeature("fuliMatch", 0, 10, 1);
 		List<BaseFeature> feaList = new ArrayList(){{
-			add(timestampFea);
+			add(postdateFea);
 			add(histCtrFea);
 			add(sourceFea);
 			add(salaryFea);
@@ -96,6 +98,10 @@ public class SampleLrFeature {
 			add(fulimatchFea);
 			}};
 		@Override
+		protected void setup(Context context) throws IOException, InterruptedException {
+			needNotes = context.getConfiguration().getBoolean("needNotes", true);
+		}
+		@Override
 		protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 //			String inputfile = ((FileSplit)context.getInputSplit()).getPath().toString();
 			String line = value.toString();
@@ -105,6 +111,7 @@ public class SampleLrFeature {
 			sfe.setLabel(sie.getLable());
 			sfe.setCookie(sie.getCookie());
 			sfe.setInfoid(sie.getInfoid());
+			sfe.setNeedNotes(needNotes);
 			//公共变量
 			int beginIndex = 0;
 			int feaIndex = 0;
