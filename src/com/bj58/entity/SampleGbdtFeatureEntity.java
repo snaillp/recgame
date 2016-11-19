@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class SampleGbdtFeatureEntity {
+public class SampleGbdtFeatureEntity implements Comparable<SampleGbdtFeatureEntity>{
 	
 	public String toJson()
 	{
@@ -17,6 +17,16 @@ public class SampleGbdtFeatureEntity {
 	{
 		return gson.fromJson(str, SampleGbdtFeatureEntity.class);
 	}
+	@Override
+	public int compareTo(SampleGbdtFeatureEntity arg0) {
+		if(this.position > arg0.position){
+			return 1;
+		}else if(this.position < arg0.position){
+			return -1;
+		}else{
+			return 0;
+		}
+	}
 	
 	private static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 	private List<GbdtFeatureUnit> feaList;
@@ -24,6 +34,7 @@ public class SampleGbdtFeatureEntity {
 	private String qid; //query id
 	private String cookie;
 	private String infoid;
+	private int position;
 	private boolean needNotes = true;
 	
 	public void addFea(GbdtFeatureUnit gfu){

@@ -80,6 +80,7 @@ public class ClickInfoEntity {
 	public void setPosition(int position) {
 		this.position = position;
 	}
+	
 	public static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 	public String sid;
 	public String cookie;
@@ -91,4 +92,5 @@ public class ClickInfoEntity {
 	public int slot; //推荐位标示
 	public int pageno; //职位所在页码
 	public int position; //职位所在位置
+	
 }

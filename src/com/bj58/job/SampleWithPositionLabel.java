@@ -64,6 +64,8 @@ public class SampleWithPositionLabel {
 						sie.cookie = cie.getCookie();
 						sie.infoid = cie.getInfoid();
 						sie.slot = cie.getSlot();
+						sie.pageno = cie.getPageno();
+						sie.position = cie.getPosition();
 						fromePosition2Sample(pse, sie);
 						context.write(new Text(sie.cookie), new Text(sie.toJson()));
 					}

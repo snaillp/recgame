@@ -3,6 +3,7 @@ package com.bj58.job;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -178,8 +179,15 @@ public class SampleGbdtFea {
 	
 	public static class SampleGbdtFeaReducer extends Reducer<Text, Text, Text, Text> {
 		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+			List<SampleGbdtFeatureEntity> sgfeList = new ArrayList();
 			for(Text val: values){
-				context.write(val, new Text(""));
+				String vl = val.toString();
+				SampleGbdtFeatureEntity sgfe = SampleGbdtFeatureEntity.fromJson(vl);
+				sgfeList.add(sgfe);
+			}
+			Collections.sort(sgfeList);
+			for(SampleGbdtFeatureEntity sgfe: sgfeList){
+				context.write(new Text(sgfe.toJson()), new Text(""));
 			}
 		}
 	}

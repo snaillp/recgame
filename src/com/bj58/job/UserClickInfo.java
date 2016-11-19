@@ -171,12 +171,25 @@ public class UserClickInfo {
 			List<ClickInfoEntity> entityList = new ArrayList();
 			int count0 = 0;
 			int count1 = 0;
+			int first1Pos = 0;
+			int lineno = 0;
 			for(Text val: values){
 				String vl = val.toString();
 				ClickInfoEntity cie = ClickInfoEntity.fromJson(vl);
+				if(cie.getPageno() > 1){
+					continue;
+				}
+				lineno++;
+				//丢弃超过30的位置
+//				if(lineno > 30){
+//					break;
+//				}
 				if(cie.getLabel().equals("0")){
 					count0++;
 				}else{
+					if(first1Pos == 0){
+						first1Pos = lineno;
+					}
 					count1++;
 				}
 				entityList.add(cie);

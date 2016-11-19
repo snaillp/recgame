@@ -253,6 +253,31 @@ public class SampleInfoEntity {
 		this.postdate = postdate;
 	}
 
+	public int getPageno() {
+		return pageno;
+	}
+
+	public void setPageno(int pageno) {
+		this.pageno = pageno;
+	}
+
+	public int getPosition() {
+		return position;
+	}
+
+	public void setPosition(int position) {
+		this.position = position;
+	}
+
+	public int getUserCtr() {
+		return userCtr;
+	}
+
+	public void setUserCtr(int userCtr) {
+		this.userCtr = userCtr;
+	}
+	
+
 	public static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 	public String sid;
 	public String lable;
@@ -262,6 +287,8 @@ public class SampleInfoEntity {
 	public int slot; //推荐位标示
 	public Set<String> local = new HashSet();
 	public String cate;
+	public int pageno;
+	public int position;
 	public int histCtr; //帖子ctr
 	public int userCtr; //发帖人的ctr
 	public long timeInteval; //展示时间-postdate
