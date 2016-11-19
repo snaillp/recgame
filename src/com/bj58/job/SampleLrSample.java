@@ -23,11 +23,16 @@ public class SampleLrSample {
 				if(randno != 0){
 					return;
 				}
+//			}else{
+//				int randno = random.nextInt(2);
+//				if(randno != 0){
+//					return;
+//				}
 			}
-			int anIndex = line.indexOf("#");
-			if(anIndex >= 0){
-				line = line.substring(0, anIndex);
-			}
+//			int anIndex = line.indexOf("#");
+//			if(anIndex >= 0){
+//				line = line.substring(0, anIndex);
+//			}
 			context.write(new Text(line), new Text(""));
 		}
 	}

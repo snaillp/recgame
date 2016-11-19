@@ -6,12 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 
 import com.bj58.entity.BaseFeature;
 import com.bj58.entity.ContFeature;
@@ -51,10 +55,12 @@ public class SampleLrFeature {
 	 */
 	public static class SampleLrFeatureMapper extends Mapper<Object, Text, Text, Text> {
 		private boolean needNotes = true; //是否需要在样本末尾加入cookie，infoID等注释 
+		private String feafilepath = null;
 		//min:0, max:253617349, avg:11199388
 //		private ContFeature timestampFea = new ContFeature("timeInteval", 0, 999999, 10000); //1-10000
 		private ContFeature postdateFea = new ContFeature("postdate", 1000000, 4999999, 10000);
 		private ContFeature histCtrFea = new ContFeature("histCtr", 0, 9999, 10000);           //10001-20000
+		private ContFeature uerCtrFea = new ContFeature("userCtr", 0, 9999, 10000);           //10001-20000
 		//TODO:统计值范围
 		private EnumIntervalFeature sourceFea = new EnumIntervalFeature("source", 0, 15);
 		private EnumIntervalFeature salaryFea = new EnumIntervalFeature("salary", 0, 10);
@@ -64,7 +70,7 @@ public class SampleLrFeature {
 		private EnumIntervalFeature tradeFea = new EnumIntervalFeature("trade", 0,53);
 		//福利是多值，特殊处理
 		private EnumIntervalFeature fuliFea = new EnumIntervalFeature("fuliSet", 0, 10);
-		private EnumAllFeature freshFea = new EnumAllFeature("fresh", new ArrayList<Integer>(){{add(0); add(1);}});
+		private EnumAllFeature freshFea = new EnumAllFeature("fresh", new ArrayList<Double>(){{add(0.0); add(1.0);}});
 		//TODO:统计值范围
 		private ContFeature highlightFea = new ContFeature("highlights", 0, 15, 16);
 		private EnumIntervalFeature additionFea = new EnumIntervalFeature("additional", 0, 4);
@@ -79,6 +85,7 @@ public class SampleLrFeature {
 		List<BaseFeature> feaList = new ArrayList(){{
 			add(postdateFea);
 			add(histCtrFea);
+			add(uerCtrFea);
 			add(sourceFea);
 			add(salaryFea);
 			add(eduFea);
@@ -100,6 +107,27 @@ public class SampleLrFeature {
 		@Override
 		protected void setup(Context context) throws IOException, InterruptedException {
 			needNotes = context.getConfiguration().getBoolean("needNotes", true);
+			feafilepath = context.getConfiguration().get("feaDescPath", null); 
+			if(null == feafilepath && !feafilepath.isEmpty()){
+				//特征说明文件
+				StringBuilder sb = new StringBuilder();
+				int beginIndex = 1;
+				for(BaseFeature fea: feaList){
+					fea.setBeginIndex(beginIndex);
+					sb.append(fea.toString()).append("\n");
+					beginIndex += fea.getDimension();
+				}
+				fuliFea.setBeginIndex(beginIndex);
+				sb.append(fuliFea.toString());
+				
+				if(sb.length() != 0){
+					FileSystem fs = FileSystem.get(context.getConfiguration());
+					Path path = new Path(feafilepath);
+					FSDataOutputStream out = fs.create(path, true);
+					out.writeBytes(sb.toString());
+					out.close();
+				}
+			}
 		}
 		@Override
 		protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
@@ -115,17 +143,19 @@ public class SampleLrFeature {
 			//公共变量
 			int beginIndex = 0;
 			int feaIndex = 0;
+			
 			for(BaseFeature fea: feaList){
 				String fieldname = fea.getFeaname();
 				try {
 					Field field = sie.getClass().getDeclaredField(fieldname);
 					field.setAccessible(true);
 					field.get(sie);
-					if(fea.getFeatype().equals("double")){
-						feaIndex = fea.getFeaIndex(beginIndex, (double)field.getDouble(sie));
-					}else if(fea.getFeatype().equals("int")){
-						feaIndex = fea.getFeaIndex(beginIndex, (int)field.getInt(sie));
-					}
+//					if(fea.getFeatype().equals("double")){
+					//setup里设置了beginIndex，此处其实不需要再次传入
+					feaIndex = fea.getFeaIndex(beginIndex, (double)field.getDouble(sie));
+//					}else if(fea.getFeatype().equals("int")){
+//						feaIndex = fea.getFeaIndex(beginIndex, (int)field.getInt(sie));
+//					}
 					sfe.addFea(feaIndex);
 					beginIndex += fea.getDimension();
 				} catch (Exception e) {

@@ -63,6 +63,7 @@ public class SampleWithPositionLabel {
 						sie.lable = cie.getLabel();
 						sie.cookie = cie.getCookie();
 						sie.infoid = cie.getInfoid();
+						sie.slot = cie.getSlot();
 						fromePosition2Sample(pse, sie);
 						context.write(new Text(sie.cookie), new Text(sie.toJson()));
 					}
@@ -73,6 +74,7 @@ public class SampleWithPositionLabel {
 		{
 			sie.local = pse.local;
 			sie.cate = pse.cate;
+			sie.userCtr = pse.userctr;
 			sie.histCtr = pse.histCtr;
 			sie.postdate = pse.postdate;
 			sie.source = pse.source;

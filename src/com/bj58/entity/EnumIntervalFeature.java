@@ -5,9 +5,9 @@ import java.util.Map;
 public class EnumIntervalFeature implements BaseFeature {
 	//enumI min,max,interval dim
 	private String feaname;
-	private String featype = "int";
-	private int min;
-	private int max;
+	private double min;
+	private double max;
+	private int beginIndex;
 	private int interval; //
 	private int dimension;
 //	Map<Integer, Integer> indexMap;
@@ -32,22 +32,16 @@ public class EnumIntervalFeature implements BaseFeature {
 	public void setFeaname(String feaname) {
 		this.feaname = feaname;
 	}
-	public String getFeatype() {
-		return featype;
-	}
-	public void setFeatype(String featype) {
-		this.featype = featype;
-	}
-	public int getMin() {
+	public double getMin() {
 		return min;
 	}
-	public void setMin(int min) {
+	public void setMin(double min) {
 		this.min = min;
 	}
-	public int getMax() {
+	public double getMax() {
 		return max;
 	}
-	public void setMax(int max) {
+	public void setMax(double max) {
 		this.max = max;
 	}
 	public int getInterval() {
@@ -62,25 +56,32 @@ public class EnumIntervalFeature implements BaseFeature {
 	public void setDimension(int dimension) {
 		this.dimension = dimension;
 	}
-	public int getFeaIndex(int beginIndex, int value){
+	public int getBeginIndex() {
+		return beginIndex;
+	}
+	public void setBeginIndex(int beginIndex) {
+		this.beginIndex = beginIndex;
+	}
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(feaname).append(":{").append("value:[").append(this.min).append(",");
+		sb.append(this.max).append("]").append(", index:[").append(this.beginIndex);
+		sb.append(",").append(this.beginIndex+this.dimension-1).append("]").append(", dimension:").append(this.dimension);
+		sb.append(", interval:").append(this.interval);
+		return sb.toString();
+	}
+	public int getFeaIndex(int beginIndex, double value){
 		if(value>this.max || value<this.min){
 			value = min;
 		}
-		int ind = value - this.min + 1;
+		int ind = (int) (value - this.min + 1);
 		return beginIndex + ind;
 	}
-	@Override
-	public int getFeaIndex(int beginIndex, double value) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+
 	@Override
 	public GbdtFeatureUnit getFea(int beginIndex, double value) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public GbdtFeatureUnit getFea(int beginIndex, int value) {
 		int index = getFeaIndex(beginIndex, value);
 		return new GbdtFeatureUnit(index, 1.0);
 	}

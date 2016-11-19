@@ -7,24 +7,34 @@ import java.util.Map;
 
 public class EnumAllFeature implements BaseFeature {
 	private String feaname;
-	private String featype = "int";
 	private int dimension;
-	List<Integer> valueList;
-	Map<Integer, Integer> indexMap;
+	private double min;
+	private double max;
+	private int beginIndex;
+	private int interval = 1;
+	List<Double> valueList;
+	Map<Double, Integer> indexMap;
 	
 	public EnumAllFeature(){
 		
 	}
-	public EnumAllFeature(String feaname, List<Integer> vList){
+	public EnumAllFeature(String feaname, List<Double> vList){
 		this.feaname = feaname;
 		this.dimension = vList.size();
 		this.valueList = vList;
 		indexMap = new HashMap();
 		for(int i=0; i<this.valueList.size(); ++i){
-			indexMap.put(valueList.get(i), i+1);
+			double value = valueList.get(i);
+			if(min > value){
+				min = value;
+			}
+			if(max < value){
+				max = value;
+			}
+			indexMap.put(value, i+1);
 		}
 	}
-	public void setValueList(List<Integer> vList){
+	public void setValueList(List<Double> vList){
 		this.dimension = vList.size();
 		this.valueList = vList;
 		if(null == indexMap){
@@ -41,46 +51,63 @@ public class EnumAllFeature implements BaseFeature {
 	public void setFeaname(String feaname) {
 		this.feaname = feaname;
 	}
-	public String getFeatype() {
-		return featype;
-	}
-	public void setFeatype(String featype) {
-		this.featype = featype;
-	}
-	public Map<Integer, Integer> getIndexMap() {
+	public Map<Double, Integer> getIndexMap() {
 		return indexMap;
 	}
-	public void setIndexMap(Map<Integer, Integer> indexMap) {
+	public void setIndexMap(Map<Double, Integer> indexMap) {
 		this.indexMap = indexMap;
 	}
-	public List<Integer> getValueList() {
+	public List<Double> getValueList() {
 		return valueList;
 	}
-	public int getFeaIndex(int beginIndex, int value){
+	public int getFeaIndex(int beginIndex, double value){
 		return beginIndex + indexMap.get(value);
-	}
-	@Override
-	public int getFeaIndex(int beginIndex, double value) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 	
 	public int getDimension() {
 		return this.dimension;
 	}
+	public int getBeginIndex() {
+		return beginIndex;
+	}
+	public void setBeginIndex(int beginIndex) {
+		this.beginIndex = beginIndex;
+	}
+	public void setDimension(int dimension) {
+		this.dimension = dimension;
+	}
+	public void setMin(double min) {
+		this.min = min;
+	}
+	public void setMax(double max) {
+		this.max = max;
+	}
 	@Override
-	public GbdtFeatureUnit getFea(int beginIndex, int value) {
-		int index = getFeaIndex(beginIndex, value);
-		return new GbdtFeatureUnit(index, 1.0);
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(feaname).append(":{").append("value:[").append(this.min).append(",");
+		sb.append(this.max).append("]").append(", index:[").append(this.beginIndex);
+		sb.append(",").append(this.beginIndex+this.dimension-1).append("]").append(", dimension:").append(this.dimension);
+		sb.append(", interval:").append(this.interval);
+		return sb.toString();
 	}
 	@Override
 	public GbdtFeatureUnit getFea(int beginIndex, double value) {
-		// TODO Auto-generated method stub
-		return null;
+		int index = getFeaIndex(beginIndex, value);
+		return new GbdtFeatureUnit(index, 1.0);
 	}
-	
+
 	public static void main(String[] args){
-		EnumAllFeature freshFea = new EnumAllFeature("fresh", new ArrayList<Integer>(){{add(0); add(1);}});
+		EnumAllFeature freshFea = new EnumAllFeature("fresh", new ArrayList<Double>(){{add(0.0); add(1.0);}});
 		System.out.println(freshFea.getFeaIndex(0, 0));
+	}
+	@Override
+	public double getMin() {
+		return this.min;
+	}
+	@Override
+	public double getMax() {
+		return this.max;
 	}
 }

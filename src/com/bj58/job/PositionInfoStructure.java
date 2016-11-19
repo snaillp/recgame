@@ -38,6 +38,10 @@ public class PositionInfoStructure {
 			}else if(lineArray[2].matches("\\d+")){
 				pse.cate = lineArray[2];
 			}
+			pse.titlelen = lineArray[6].length();
+			if(lineArray[7].length() > 2){
+				pse.userid = lineArray[7];
+			}
 			if(lineArray[8].matches("\\d+")){
 				//小时单位
 				pse.postdate = Long.parseLong(lineArray[8])/(5*60*1000);

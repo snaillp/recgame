@@ -237,15 +237,33 @@ public class SampleInfoEntity {
 		this.tradematch = tradematch;
 	}
 
+	public int getSlot() {
+		return slot;
+	}
+
+	public void setSlot(int slot) {
+		this.slot = slot;
+	}
+
+	public long getPostdate() {
+		return postdate;
+	}
+
+	public void setPostdate(long postdate) {
+		this.postdate = postdate;
+	}
+
 	public static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 	public String sid;
 	public String lable;
 	//每行特征
 	public String cookie;
 	public String infoid;
+	public int slot; //推荐位标示
 	public Set<String> local = new HashSet();
 	public String cate;
-	public int histCtr;
+	public int histCtr; //帖子ctr
+	public int userCtr; //发帖人的ctr
 	public long timeInteval; //展示时间-postdate
 	public long postdate; //最后一次修改时间
 	public int source;

@@ -143,8 +143,43 @@ public class PositionStructEntity {
 		this.additional = additional;
 	}
 
+	public String getUserid() {
+		return userid;
+	}
+
+	public void setUserid(String userid) {
+		this.userid = userid;
+	}
+
+	public Set<Integer> getFuliSet() {
+		return fuliSet;
+	}
+
+	public void setFuliSet(Set<Integer> fuliSet) {
+		this.fuliSet = fuliSet;
+	}
+
+	public int getTitlelen() {
+		return titlelen;
+	}
+
+	public void setTitlelen(int titlelen) {
+		this.titlelen = titlelen;
+	}
+
+	public int getUserctr() {
+		return userctr;
+	}
+
+	public void setUserctr(int userctr) {
+		this.userctr = userctr;
+	}
+
 	public static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 	public String infoid;
+	public String userid; //发布用户id
+	public int userctr;
+	public int titlelen;
 	public int histCtr;
 	public String cate;
 	public Set<String> local = new HashSet(16);

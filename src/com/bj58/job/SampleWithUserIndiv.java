@@ -15,6 +15,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 
 import com.bj58.entity.SampleInfoEntity;
 import com.bj58.entity.UserIndivEntity;
@@ -42,6 +43,7 @@ public class SampleWithUserIndiv {
 	public static class SampleUserIndivReducer extends Reducer<Text, Text, Text, Text> {
 		private Map<String, String> local2FullpathMap;
 		private Map<String, String> cate2FullpathMap;
+		private MultipleOutputs multioutput;
 		@Override
 		protected void setup(Context context) throws IOException, InterruptedException 
 		{
@@ -66,6 +68,13 @@ public class SampleWithUserIndiv {
 				cate2FullpathMap.put(cateid, catefullpath);
 			}
 			br.close();
+			multioutput = new MultipleOutputs(context);// 初始化mos
+		}
+		@Override
+		protected void cleanup(Context context) throws IOException,
+				InterruptedException {
+			multioutput.close();
+
 		}
 		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 			UserIndivEntity uie = null;
@@ -82,7 +91,9 @@ public class SampleWithUserIndiv {
 					if(null != uie){
 						userIndivMatch(uie, sie);
 					}
-					context.write(new Text(realKey), new Text(sie.toJson()));
+					int slot = sie.getSlot();
+					multioutput.write(new Text(realKey), new Text(sie.toJson()), "slot"+slot);
+//					context.write(new Text(realKey), new Text(sie.toJson()));
 				}
 			}
 		}

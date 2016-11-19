@@ -2,9 +2,9 @@ package com.bj58.entity;
 
 public class ContFeature implements BaseFeature  {
 	private String feaname;
-	private String featype = "double";
 	private double min;
 	private double max;
+	private int beginIndex;
 	private double interval;
 	private int dimension;
 	
@@ -31,12 +31,6 @@ public class ContFeature implements BaseFeature  {
 	public void setFeaname(String feaname) {
 		this.feaname = feaname;
 	}
-	public String getFeatype() {
-		return featype;
-	}
-	public void setFeatype(String featype) {
-		this.featype = featype;
-	}
 	public double getMin() {
 		return min;
 	}
@@ -61,6 +55,12 @@ public class ContFeature implements BaseFeature  {
 	public void setDimension(int dimension) {
 		this.dimension = dimension;
 	}
+	public int getBeginIndex() {
+		return beginIndex;
+	}
+	public void setBeginIndex(int beginIndex) {
+		this.beginIndex = beginIndex;
+	}
 	public int getFeaIndex(int beginIndex, double value){
 		if(value - this.max > 0.001){
 			value = this.max;
@@ -70,11 +70,6 @@ public class ContFeature implements BaseFeature  {
 		}
 		int ind = (int) ((value - min)/interval) + 1;
 		return beginIndex + ind;
-	}
-	@Override
-	public int getFeaIndex(int beginIndex, int value) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 	
 	public static int getFeaIndex(int min, int max, int dim, int beginIndex, double value){
@@ -92,6 +87,16 @@ public class ContFeature implements BaseFeature  {
 	public GbdtFeatureUnit getFea(int beginIndex, double value) {
 		return new GbdtFeatureUnit(beginIndex+1, value);
 	}
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(feaname).append(":{").append("value:[").append(this.min).append(",");
+		sb.append(this.max).append("]").append(", index:[").append(this.beginIndex);
+		sb.append(",").append(this.beginIndex+this.dimension-1).append("]").append(", dimension:").append(this.dimension);
+		sb.append(", interval:").append(this.interval);
+		return sb.toString();
+	}
 	
 	public static void main(String[] args)
 	{	//1:[0,3], 2:[4,6], 3:[7,10], 4:[11-13], 5:[14,16], 6:[17,20]
@@ -105,10 +110,4 @@ public class ContFeature implements BaseFeature  {
 		System.out.println(ContFeature.getFeaIndex(min, max, dim, 0, 0));
 		System.out.println(cf.getDimension());
 	}
-	@Override
-	public GbdtFeatureUnit getFea(int beginIndex, int value) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 }
