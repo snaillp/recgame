@@ -198,7 +198,7 @@ public class UserClickInfo {
 			String inputfile = ((FileSplit)context.getInputSplit()).getPath().toString();
 			String line = value.toString().trim();
 			String[] lineArray = line.split("\t");
-			if(inputfile.contains("/structdata/")){
+			if(inputfile.contains("/positionuserctr/")){
 				//帖子数据， key: infoID，value: info
 				context.write(new Text(lineArray[0]+"\001A"), new Text("A\001"+lineArray[1]));
 			}else if(inputfile.contains("/UserClickInfo/")){

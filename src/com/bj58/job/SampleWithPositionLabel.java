@@ -24,7 +24,7 @@ public class SampleWithPositionLabel {
 			String inputfile = ((FileSplit)context.getInputSplit()).getPath().toString();
 			String line = value.toString().trim();
 			String[] lineArray = line.split("\t");
-			if(inputfile.contains("/structdata/")){
+			if(inputfile.contains("/positionuserctr/")){
 				//imc, key:infoid
 //				PositionStructEntity pse = PositionStructEntity.fromJson(lineArray[1]);
 				context.write(new Text(lineArray[0]+"\001A"), new Text("A\001"+lineArray[1]));

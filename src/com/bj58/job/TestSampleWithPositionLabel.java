@@ -35,12 +35,14 @@ public class TestSampleWithPositionLabel {
 		protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 			String inputfile = ((FileSplit)context.getInputSplit()).getPath().toString();
 			String line = value.toString().trim();
-			String[] lineArray = line.split("\t");
-			if(inputfile.contains("/structdata/")){
+			
+			if(inputfile.contains("/positionuserctr/")){
+				String[] lineArray = line.split("\t");
 				//imc, key:infoid
 //				PositionStructEntity pse = PositionStructEntity.fromJson(lineArray[1]);
 				context.write(new Text(lineArray[0]+"\001A"), new Text("A\001"+lineArray[1]));
-			}else if(inputfile.contains("/datatest/")){
+			}else if(inputfile.contains("/testdata/")){
+				String[] lineArray = line.split("\001");
 				//click, key:infoid
 				ClickInfoEntity cie = new ClickInfoEntity();
 				cie.setCookie(lineArray[0]);
